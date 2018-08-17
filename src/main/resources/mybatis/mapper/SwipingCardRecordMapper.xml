@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.thinkgem.elclient.dao.SwipingCardRecordDao" >
+
+  <resultMap id="BaseResultMap" type="com.thinkgem.elclient.entity.SwipingCardRecord" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="start_time" property="startTime" jdbcType="DATE" />
+    <result column="end_time" property="endTime" jdbcType="DATE" />
+    <result column="balance" property="balance" jdbcType="DECIMAL" />
+    <result column="record_time" property="recordTime" jdbcType="DATE" />
+    <result column="consumption_stere" property="consumptionStere" jdbcType="DECIMAL" />
+    <result column="consumption_money" property="consumptionMoney" jdbcType="DECIMAL" />
+    <result column="valve_name" property="valveName" jdbcType="VARCHAR" />
+    <result column="valve_id" property="valveId" jdbcType="VARCHAR" />
+    <result column="peasantry_id" property="peasantryId" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="MonthResultMap" type="com.thinkgem.elclient.entity.swiping.SwipingCardRecordVo" >
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="years" property="year" jdbcType="INTEGER" />
+    <result column="months" property="month" jdbcType="INTEGER" />
+    <result column="yearMonths" property="yearMonths" jdbcType="VARCHAR" />
+    <result column="consumption_stere" property="consumptionStere" jdbcType="DECIMAL" />
+    <result column="consumption_money" property="consumptionMoney" jdbcType="DECIMAL" />
+    <result column="useNum" property="useNum" jdbcType="INTEGER" />
+  </resultMap>
+
+  <resultMap id="ListResultMap" type="com.thinkgem.elclient.entity.swiping.SwipingCardRecordList" >
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="years" property="year" jdbcType="INTEGER" />
+    <result column="months" property="month" jdbcType="INTEGER" />
+    <result column="yearMonths" property="yearMonths" jdbcType="VARCHAR" />
+    <result column="consumption_stere" property="consumptionStere" jdbcType="DECIMAL" />
+    <result column="consumption_money" property="consumptionMoney" jdbcType="DECIMAL" />
+    <result column="start_time" property="startTime" jdbcType="VARCHAR" />
+    <result column="end_time" property="endTime" jdbcType="VARCHAR" />
+    <result column="valve_id" property="valveId" jdbcType="VARCHAR" />
+    <result column="valve_name" property="valveName" jdbcType="VARCHAR" />
+    <result column="peasantry_id" property="peasantryId" jdbcType="VARCHAR" />
+    <result column="peasantry_name" property="peasantryName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, card_no, start_time, end_time, balance, record_time, consumption_stere, consumption_money,
+    valve_name, valve_id, peasantry_id
+  </sql>
+<!-- 2 -->
+  <select id="monthRecordWater" resultMap="MonthResultMap">
+    SELECT card_no, EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, COUNT(id) useNum,
+    SUM(consumption_stere) consumption_stere, SUM(consumption_money) consumption_money
+    FROM swiping_card_record
+    <trim prefix="WHERE" prefixOverrides="AND | OR">
+      <if test="cardNo != null and cardNo.length()>0"> AND card_no = #{cardNo, jdbcType=VARCHAR} </if>
+      <if test="selectDay != null and selectDay.length()>0"> AND EXTRACT(YEAR_MONTH  FROM end_time) = #{selectDay, jdbcType=VARCHAR} </if>
+    </trim>
+    GROUP BY card_no, EXTRACT(MONTH FROM end_time)
+  </select>
+
+  <select id="monthAllRecordWater" resultMap="MonthResultMap">
+    SELECT EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, COUNT(id) useNum,
+    SUM(consumption_stere) consumption_stere, SUM(consumption_money) consumption_money
+    FROM swiping_card_record WHERE EXTRACT(YEAR_MONTH  FROM end_time) = #{selectDay, jdbcType=VARCHAR}
+    GROUP BY EXTRACT(MONTH FROM end_time)
+  </select>
+
+
+
+<!-- 1 -->
+  <select id="monthSelectRecordWater" resultMap="MonthResultMap">
+    SELECT card_no, EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, COUNT(id) useNum,
+    SUM(consumption_stere) consumption_stere, SUM(consumption_money) consumption_money
+    FROM swiping_card_record
+    WHERE card_no = #{cardNo, jdbcType=VARCHAR}
+    AND end_time BETWEEN CONCAT(DATE_FORMAT(LAST_DAY(STR_TO_DATE(#{selectDay},'%Y%m%d') - INTERVAL 5 MONTH),'%Y-%m-'),'01') AND STR_TO_DATE(#{selectDay},'%Y%m%d')
+    GROUP BY card_no, EXTRACT(MONTH FROM end_time) ORDER BY EXTRACT(YEAR_MONTH  FROM end_time) ASC
+  </select>
+
+  <select id="monthSelectAllRecordWater" resultMap="MonthResultMap">
+    SELECT EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, COUNT(id) useNum,
+    SUM(consumption_stere) consumption_stere, SUM(consumption_money) consumption_money
+    FROM swiping_card_record
+    WHERE end_time BETWEEN CONCAT(DATE_FORMAT(LAST_DAY(STR_TO_DATE(#{selectDay},'%Y%m%d') - INTERVAL 5 MONTH),'%Y-%m-'),'01') AND STR_TO_DATE(#{selectDay},'%Y%m%d')
+    GROUP BY EXTRACT(MONTH FROM end_time) ORDER BY EXTRACT(YEAR_MONTH  FROM end_time) ASC
+  </select>
+
+
+
+
+  <select id="listRecordWater" resultMap="ListResultMap">
+    SELECT a.*,b.peasantry_name FROM(
+        SELECT  card_no, EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, start_time, end_time, valve_id, valve_name, peasantry_id, consumption_stere, consumption_money
+        FROM swiping_card_record
+        WHERE card_no = #{cardNo, jdbcType=VARCHAR} AND EXTRACT(YEAR_MONTH  FROM end_time) = #{selectDay, jdbcType=VARCHAR}
+        ORDER BY end_time DESC
+    ) a LEFT JOIN peasantry_info b ON a.peasantry_id = b.id
+  </select>
+
+  <select id="listAllRecordWater" resultMap="ListResultMap">
+    SELECT a.*,b.peasantry_name FROM(
+        SELECT EXTRACT(YEAR FROM end_time) years, EXTRACT(MONTH FROM end_time) months, EXTRACT(YEAR_MONTH  FROM end_time) yearMonths, start_time, end_time, valve_id, valve_name, peasantry_id, consumption_stere, consumption_money
+        FROM swiping_card_record
+        WHERE EXTRACT(YEAR_MONTH  FROM end_time) = #{selectDay, jdbcType=VARCHAR}
+        ORDER BY end_time DESC
+    ) a LEFT JOIN peasantry_info b ON a.peasantry_id = b.id
+  </select>
+  
+
+</mapper>

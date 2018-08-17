@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.thinkgem.elclient.dao.AboutDao">
+	<resultMap id="BaseResultMap" type="com.thinkgem.elclient.entity.About">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="company_name" property="company_name" jdbcType="VARCHAR" />
+		<result column="company_addr" property="company_addr" jdbcType="VARCHAR" />
+		<result column="official_website" property="official_website"
+			jdbcType="VARCHAR" />
+		<result column="contact" property="contact" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, company_name, company_addr, official_website, contact,content
+	</sql>
+	<select id="selectAbout" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from about
+
+	</select>
+	
+</mapper>

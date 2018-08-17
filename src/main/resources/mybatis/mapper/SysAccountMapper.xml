@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.thinkgem.elclient.dao.SysAccountServiceDao" >
+
+  <resultMap id="BaseResultMap" type="com.thinkgem.elclient.entity.SysAccount" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="account_name" property="accountName" jdbcType="VARCHAR" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="login_pwd" property="loginPwd" jdbcType="VARCHAR" />
+    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
+    <result column="account_type" property="accountType" jdbcType="INTEGER" />
+    <result column="personnel_id" property="personnelId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="DATE" />
+  </resultMap>
+
+  <select id="findUserByPhone" resultMap="BaseResultMap">
+      select * from sys_account where login_name = #{phone}
+  </select>
+
+  <update id="changePassword">
+      update sys_account set login_pwd = #{newPassword} where id = #{id}
+  </update>
+
+
+</mapper>

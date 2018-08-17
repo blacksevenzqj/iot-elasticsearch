@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.thinkgem.elclient.dao.RechargeRecordDao">
+
+	<resultMap id="MonthResultMap"
+		type="com.thinkgem.elclient.entity.recharge.RechargeRecordVo">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="recharge_time" property="rechargeTime"
+			jdbcType="DATE" />
+		<result column="recharge_type" property="rechargeType"
+			jdbcType="INTEGER" />
+		<result column="recharge_amount" property="rechargeAmount"
+			jdbcType="DECIMAL" />
+		<result column="card_money" property="cardMoney" jdbcType="DECIMAL" />
+		<result column="operation_type" property="operationType"
+			jdbcType="INTEGER" />
+		<result column="device_id" property="deviceId" jdbcType="VARCHAR" />
+		<result column="balance" property="balance" jdbcType="DECIMAL" />
+		<result column="card_id" property="cardId" jdbcType="VARCHAR" />
+		<result column="charge_status" property="chargeStatus"
+			jdbcType="INTEGER" />
+		<result column="card_status" property="cardStatus" jdbcType="INTEGER" />
+		<result column="cashier_id" property="cashierId" jdbcType="VARCHAR" />
+		<result column="peasantry_id" property="peasantryId" jdbcType="VARCHAR" />
+		<result column="peasantry_number" property="peasantryNumber"
+			jdbcType="VARCHAR" />
+		<result column="years" property="year" jdbcType="INTEGER" />
+		<result column="months" property="month" jdbcType="INTEGER" />
+		<result column="idNum" property="idNum" jdbcType="INTEGER" />
+		<result column="yearMonths" property="yearMonths" jdbcType="VARCHAR" />
+		<result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		recharge_record.id,recharge_time,recharge_type,recharge_record.peasantry_id,recharge_record.operation_type,
+		recharge_amount,recharge_record.card_money,recharge_record.device_id,recharge_record.balance,
+		recharge_record.card_id,recharge_record.charge_status,recharge_record.card_status,
+		recharge_record.cashier_id,peasantry_info.peasantry_name,card_info.card_no
+	</sql>
+
+	<!-- 依据卡号得出充值记的信息，其中有卡号card_no,订单号recharge.id,姓名:peastantry_name,充值金额：recharge_amount，状态：card_status,充值总额：SUM(recharge_amount) -->
+	<select id="monthRechargeRecord" resultMap="MonthResultMap">
+		SELECT EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths, COUNT(recharge_record.id) idNum,
+		SUM(recharge_amount)
+		recharge_amount, SUM(recharge_record.balance) balance
+		FROM
+		recharge_record join card_info on
+		recharge_record.card_id=card_info.id
+		JOIN peasantry_info ON
+		peasantry_info.id=card_info.peasantry_id
+		<trim prefix="WHERE" prefixOverrides="AND | OR"> <!-- 去除多余的前缀内容 -->
+			<if test="cardNo != null and cardNo.length()>0"> AND card_info.card_no = #{cardNo, jdbcType=VARCHAR} </if>
+			<if test="selectDay != null and selectDay.length()>0"> AND EXTRACT(YEAR_MONTH FROM recharge_time) =
+				#{selectDay, jdbcType=VARCHAR} </if>
+		</trim>
+		GROUP BY EXTRACT(MONTH FROM recharge_time)
+	</select>
+
+	<!-- 按照月份查看充值卡总共充值记录 -->
+	<select id="monthAllRechargeRecord" resultMap="MonthResultMap">
+		SELECT
+		EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths, COUNT(recharge_record.id) idNum,
+		SUM(recharge_amount)
+		recharge_amount, SUM(recharge_record.balance) balance
+		from
+		recharge_record join card_info on
+		recharge_record.card_id=card_info.id
+		JOIN peasantry_info ON
+		peasantry_info.id=card_info.peasantry_id
+		ORDER BY EXTRACT(YEAR_MONTH FROM recharge_time) ASC
+	</select>
+
+
+
+	<!--选择卡号单个卡6个月充值记录 -->
+	<select id="monthSelectRechargeRecord" resultMap="MonthResultMap">
+		SELECT EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths, COUNT(recharge_record.id) idNum,
+		SUM(recharge_amount)
+		recharge_amount, SUM(recharge_record.balance) balance,
+		<include refid="Base_Column_List" />
+		from recharge_record join card_info on
+		recharge_record.card_id=card_info.id JOIN peasantry_info ON
+		peasantry_info.id=card_info.peasantry_id
+		WHERE card_info.card_no =
+		#{cardNo, jdbcType=VARCHAR} AND
+		recharge_time BETWEEN
+		DATE_SUB(STR_TO_DATE(#{selectDay},'%Y%m%d'),
+		INTERVAL 5 MONTH) AND
+		STR_TO_DATE(#{selectDay},'%Y%m%d')
+		GROUP BY card_info.card_no,
+		EXTRACT(MONTH FROM recharge_time) ORDER BY
+		EXTRACT(YEAR_MONTH FROM
+		recharge_time) ASC
+	</select>
+
+
+	<!-- 所有卡充值6个月数据 -->
+	<select id="monthSelectAllRechargeRecord" resultMap="MonthResultMap">
+		SELECT
+		EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths, COUNT(recharge_record.id) idNum,
+		SUM(recharge_amount)
+		recharge_amount, SUM(recharge_record.balance) balance
+		FROM
+		recharge_record
+		WHERE recharge_time BETWEEN
+		DATE_SUB(STR_TO_DATE(#{selectDay}, '%Y%m%d'),
+		INTERVAL 5 MONTH) AND
+		STR_TO_DATE(#{selectDay}, '%Y%m%d')
+		GROUP BY EXTRACT(MONTH FROM
+		recharge_time) ORDER BY EXTRACT(YEAR_MONTH FROM
+		recharge_time) ASC
+	</select>
+
+
+
+
+	<select id="listRechargeRecord" resultMap="MonthResultMap">
+		select
+		recharge_record.id,recharge_record.recharge_time,recharge_record.card_id,card_info.card_no,peasantry_info.peasantry_name,recharge_amount,card_info.card_status,
+		EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths
+		from recharge_record join card_info ON
+		recharge_record.card_id=card_info.id JOIN peasantry_info ON
+		peasantry_info.id=card_info.peasantry_id
+		WHERE card_info.card_no =
+		#{cardNo, jdbcType=VARCHAR} AND
+		EXTRACT(YEAR_MONTH FROM recharge_time)
+		= #{selectDay,
+		jdbcType=VARCHAR}
+		ORDER BY recharge_time DESC
+	</select>
+
+	<select id="listAllRechargeRecord" resultMap="MonthResultMap">
+		select
+		recharge_record.id,recharge_record.recharge_time,recharge_record.card_id,card_info.card_no,peasantry_info.peasantry_name,recharge_amount,card_info.card_status,
+		EXTRACT(YEAR FROM recharge_time) years, EXTRACT(MONTH FROM
+		recharge_time) months, EXTRACT(YEAR_MONTH FROM recharge_time)
+		yearMonths
+		from recharge_record join card_info ON
+		recharge_record.card_id=card_info.id JOIN peasantry_info ON
+		peasantry_info.id=card_info.peasantry_id
+		WHERE EXTRACT(YEAR_MONTH FROM
+		recharge_time) = #{selectDay,
+		jdbcType=VARCHAR}
+		ORDER BY recharge_time
+		DESC
+	</select>
+
+
+</mapper>

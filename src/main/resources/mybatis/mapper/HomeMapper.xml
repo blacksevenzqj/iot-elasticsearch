@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.thinkgem.elclient.dao.HomeDao" >
+
+  <resultMap id="waterCardInfoMap" type="com.thinkgem.elclient.entity.home.MyWaterCardInfo" >
+    <result column="account_id" property="accountId" jdbcType="VARCHAR" />
+    <result column="account_name" property="accountName" jdbcType="VARCHAR" />
+    <result column="login_name" property="loginName" jdbcType="VARCHAR" />
+    <result column="account_type" property="accountType" jdbcType="VARCHAR" />
+    <result column="personnel_id" property="personnelId" jdbcType="VARCHAR" />
+    <result column="card_id" property="cardId" jdbcType="VARCHAR" />
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="balance" property="balance" jdbcType="DECIMAL" />
+    <result column="recharge_amount" property="rechargeAmount" jdbcType="DECIMAL" />
+    <result column="recharge_time" property="rechargeTime" jdbcType="VARCHAR" />
+    <result column="consumption_stere" property="consumptionStere" jdbcType="DECIMAL" />
+    <result column="consumption_money" property="consumptionMoney" jdbcType="DECIMAL" />
+    <result column="start_time" property="startTime" jdbcType="VARCHAR" />
+    <result column="end_time" property="endTime" jdbcType="VARCHAR" />
+    <result column="peasantry_addr" property="peasantryAddr" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="threeMonthRechargeMap" type="com.thinkgem.elclient.entity.home.RechargeMonth" >
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="years" property="year" jdbcType="INTEGER" />
+    <result column="months" property="month" jdbcType="INTEGER" />
+    <result column="yearMonths" property="yearMonths" jdbcType="VARCHAR" />
+    <result column="useNum" property="useNum" jdbcType="INTEGER" />
+    <result column="recharge_amount" property="rechargeAmount" jdbcType="DECIMAL" />
+  </resultMap>
+
+  <resultMap id="threeMonthSwipingCardMap" type="com.thinkgem.elclient.entity.home.SwipingCardMonth" >
+    <result column="card_no" property="cardNo" jdbcType="VARCHAR" />
+    <result column="years" property="year" jdbcType="INTEGER" />
+    <result column="months" property="month" jdbcType="INTEGER" />
+    <result column="yearMonths" property="yearMonths" jdbcType="VARCHAR" />
+    <result column="useNum" property="useNum" jdbcType="INTEGER" />
+    <result column="consumption_stere" property="consumptionStere" jdbcType="DECIMAL" />
+  </resultMap>
+
+<!-- 1 -->
+  <select id="waterCardInfo" resultMap="waterCardInfoMap">
+    SELECT a.`id` account_id, a.`account_name`,a.`login_name`,a.`account_type`,a.`personnel_id`,b.`id` card_id, b.`card_no`,b.`balance`,e.`peasantry_addr`,
+      SUBSTRING_INDEX(GROUP_CONCAT(c.recharge_amount ORDER BY c.recharge_time DESC), ',', 1) recharge_amount,
+      SUBSTRING_INDEX(GROUP_CONCAT(c.recharge_time ORDER BY c.recharge_time DESC), ',', 1) recharge_time,
+      SUBSTRING_INDEX(GROUP_CONCAT(d.consumption_stere ORDER BY d.end_time DESC), ',', 1) consumption_stere,
+      SUBSTRING_INDEX(GROUP_CONCAT(d.consumption_money ORDER BY d.end_time DESC), ',', 1) consumption_money,
+      SUBSTRING_INDEX(GROUP_CONCAT(d.start_time ORDER BY d.end_time DESC), ',', 1) start_time,
+      SUBSTRING_INDEX(GROUP_CONCAT(d.end_time ORDER BY d.end_time DESC), ',', 1) end_time
+    FROM sys_account a JOIN card_info b ON a.personnel_id = b.peasantry_id
+    LEFT JOIN `recharge_record` c ON b.`id` = c.card_id
+    LEFT JOIN `swiping_card_record` d ON b.card_no = d.card_no
+    <!-- 新增 -->
+    LEFT JOIN `peasantry_info` e ON b.peasantry_id = e.id
+    
+    WHERE b.card_status = 0 AND b.binding_status = 1 AND b.`card_type` = 0
+    AND c.operation_type = 2 AND c.charge_status = 3 AND c.card_status = 4
+    AND a.login_name = #{loginName, jdbcType=VARCHAR}
+    GROUP BY a.`id`, a.`account_name`,a.`login_name`,a.`account_type`,a.`personnel_id`,b.`id`, b.`card_no`,b.`balance`
+    ORDER BY b.card_no ASC
+  </select>
+
+
+  <select id="threeMonthRecharge" resultMap="threeMonthRechargeMap">
+    SELECT b.card_no, EXTRACT(YEAR FROM c.recharge_time) years, EXTRACT(MONTH FROM c.recharge_time) months, EXTRACT(YEAR_MONTH  FROM c.recharge_time) yearMonths, COUNT(c.id) useNum,
+    SUM(recharge_amount) recharge_amount
+    FROM sys_account a JOIN card_info b ON a.personnel_id = b.peasantry_id
+    LEFT JOIN `recharge_record` c ON b.`id` = c.card_id
+    WHERE b.card_status = 0 AND b.binding_status = 1 AND b.`card_type` = 0
+    AND c.operation_type = 2 AND c.charge_status = 3 AND c.card_status = 4
+    AND c.recharge_time BETWEEN CONCAT(DATE_FORMAT(LAST_DAY(STR_TO_DATE(#{selectDay},'%Y%m%d') - INTERVAL 2 MONTH),'%Y-%m-'),'01') AND STR_TO_DATE(#{selectDay},'%Y%m%d')
+    AND b.card_no = #{cardNo, jdbcType=VARCHAR}
+    GROUP BY b.card_no, EXTRACT(MONTH FROM c.recharge_time) ORDER BY EXTRACT(YEAR_MONTH  FROM c.recharge_time) ASC
+  </select>
+
+  <select id="threeMonthSwipingCard" resultMap="threeMonthSwipingCardMap">
+    SELECT b.card_no, EXTRACT(YEAR FROM c.end_time) years, EXTRACT(MONTH FROM c.end_time) months, EXTRACT(YEAR_MONTH  FROM c.end_time) yearMonths, COUNT(c.id) useNum,
+    SUM(consumption_stere) consumption_stere
+    FROM sys_account a JOIN card_info b ON a.personnel_id = b.peasantry_id
+    LEFT JOIN `swiping_card_record` c ON b.card_no = c.card_no
+    WHERE b.card_status = 0 AND b.binding_status = 1 AND b.`card_type` = 0
+    AND c.end_time BETWEEN CONCAT(DATE_FORMAT(LAST_DAY(STR_TO_DATE(#{selectDay},'%Y%m%d') - INTERVAL 2 MONTH),'%Y-%m-'),'01') AND STR_TO_DATE(#{selectDay},'%Y%m%d')
+    AND b.card_no = #{cardNo, jdbcType=VARCHAR}
+    GROUP BY b.card_no, EXTRACT(MONTH FROM c.end_time) ORDER BY EXTRACT(YEAR_MONTH  FROM c.end_time) ASC
+  </select>
+
+
+</mapper>
