@@ -3,11 +3,13 @@ package com.thinkgem.elclient.elasticsearch.service;
 import com.thinkgem.elclient.elasticsearch.annotation.Es6Index;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
+import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.query.EquipmentDataQuery;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -34,25 +36,24 @@ public class Es6ServiceImpl {
 
 // ***************************************************************************************************
 
-//    /**
-//     * 新增、修改、删除 文档：
-//     */
-//    // 新增文档：
-//    // 传入：子类POJO的Class
-//    public <T> RestResult createIndexDoc(Class<T> tClass, EsBaseEntity obj){
-//        try {
-//            IndexRequest indexRequest = new IndexRequest(
-//                    tClass.getSuperclass().getAnnotation(EsIndex.class).indexName(),
-//                    tClass.getAnnotation(EsType.class).typeName(),
-//                    obj.getDbId()
-//            ).source(EsUtils.Class2Array(obj));
-//            esClient.createIndexDoc(indexRequest);
-//            return RestResult.getSuccessResult();
-//        }catch (Exception e){
-//            log.error(e.getMessage());
-//        }
-//        return RestResult.getFailResult(500,"新增文档失败");
-//    }
+    /**
+     * 新增、修改、删除 文档：
+     */
+    // 新增文档：
+    // 传入：子类POJO的Class
+    public <T> RestResult createIndexDoc(Class<T> tClass, EsBaseEntity obj){
+        try {
+            IndexRequest indexRequest = new IndexRequest(
+                    tClass.getAnnotation(Es6Index.class).indexName(),
+                    tClass.getAnnotation(Es6Index.class).typeName()
+            ).source(EsUtils.Class2Array(obj));
+            esClient.createIndexDoc(indexRequest);
+            return RestResult.getSuccessResult();
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        return RestResult.getFailResult(500,"新增文档失败");
+    }
 //    // 更新文档：
 //    // 传入：子类POJO的Class
 //    public <T> RestResult upDateIndexDoc(Class<T> tClass, EsBaseEntity obj){

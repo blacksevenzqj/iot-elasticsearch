@@ -13,15 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequestMapping(value="/equipmentData")
 @Slf4j
 public class EquipmentDataController {
 
     @Autowired
     EquipmentDataService equipmentDataService;
 
-    @RequestMapping(value="/equipmentData",method= RequestMethod.GET)
-    public RestResult<List<EquipmentData>> equipmentData(EquipmentDataQuery equipmentDataQuery){
+    @RequestMapping(value="/getList", method= RequestMethod.GET)
+    public RestResult<List<EquipmentData>> getList(EquipmentDataQuery equipmentDataQuery){
         return equipmentDataService.termQueryByEquipmentId(equipmentDataQuery);
+    }
+
+    @RequestMapping(value="/save", method= RequestMethod.POST)
+    public RestResult<List<EquipmentData>> save(EquipmentData equipmentData){
+        return equipmentDataService.save(equipmentData);
     }
 
 }

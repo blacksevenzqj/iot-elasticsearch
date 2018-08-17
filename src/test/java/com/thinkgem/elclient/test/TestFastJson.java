@@ -1,7 +1,10 @@
 package com.thinkgem.elclient.test;
 
 import com.alibaba.fastjson.JSON;
+import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
+
+import java.lang.reflect.Field;
 
 public class TestFastJson {
 
@@ -11,6 +14,14 @@ public class TestFastJson {
 //        });
         EquipmentData equipmentData = JSON.parseObject(str, EquipmentData.class);
         System.out.println(equipmentData);
+
+        EquipmentData sss = new EquipmentData();
+        System.out.println(sss);
+
+        Field[] fields = EquipmentData.class.getFields();
+        for(Field field : fields) {
+            System.out.println(field.getAnnotation(EsFieldData.class).analyzerType().getKey());
+        }
     }
 
 }

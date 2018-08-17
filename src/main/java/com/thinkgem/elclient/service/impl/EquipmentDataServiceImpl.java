@@ -22,4 +22,8 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
         return es6ServiceImpl.searchTermByFiled(EquipmentData.class, equipmentDataQuery);
     }
 
+    @Override
+    public RestResult save(EquipmentData equipmentData) {
+        return es6ServiceImpl.createIndexDoc(EquipmentData.class, equipmentData);
+    }
 }

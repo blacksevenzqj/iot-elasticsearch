@@ -6,54 +6,61 @@ import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Es6Index(numberOfShards=5, numberOfReplicas=1, indexName="equipmentdata", routingName="equipment")
 public class EquipmentData extends EsBaseEntity {
 
+    @NotNull(message="设备ID字段必填")
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String equipmentId;
+    public String equipmentId;
+
+    @NotNull(message="设备CODE字段必填")
+    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    public String equipmentCode;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String createBy;
+    public String createBy;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String updateBy;
+    public String updateBy;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String remarks;
+    public String remarks;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String delFlag;
+    public String delFlag;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column1;
+    public String column1;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column2;
+    public String column2;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column3;
+    public String column3;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column4;
+    public String column4;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column5;
+    public String column5;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column6;
+    public String column6;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column7;
+    public String column7;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column8;
+    public String column8;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column9;
+    public String column9;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
-    private String column10;
+    public String column10;
 
 
 
