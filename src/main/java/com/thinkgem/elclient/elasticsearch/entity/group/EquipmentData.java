@@ -6,30 +6,26 @@ import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @Es6Index(numberOfShards=5, numberOfReplicas=1, indexName="equipmentdata", routingName="equipment")
 public class EquipmentData extends EsBaseEntity {
 
-    @NotNull(message="设备ID字段必填")
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "equipment_id")
     public String equipmentId;
 
-    @NotNull(message="设备CODE字段必填")
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "equipment_code")
     public String equipmentCode;
 
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "create_by")
     public String createBy;
 
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "update_by")
     public String updateBy;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
     public String remarks;
 
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "del_flag")
     public String delFlag;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD)
@@ -63,5 +59,29 @@ public class EquipmentData extends EsBaseEntity {
     public String column10;
 
 
+    @Override
+    public String toString() {
+        return "EquipmentData{" +
+                "equipmentId='" + equipmentId + '\'' +
+                ", equipmentCode='" + equipmentCode + '\'' +
+                ", createBy='" + createBy + '\'' +
+                ", updateBy='" + updateBy + '\'' +
+                ", remarks='" + remarks + '\'' +
+                ", delFlag='" + delFlag + '\'' +
+                ", column1='" + column1 + '\'' +
+                ", column2='" + column2 + '\'' +
+                ", column3='" + column3 + '\'' +
+                ", column4='" + column4 + '\'' +
+                ", column5='" + column5 + '\'' +
+                ", column6='" + column6 + '\'' +
+                ", column7='" + column7 + '\'' +
+                ", column8='" + column8 + '\'' +
+                ", column9='" + column9 + '\'' +
+                ", column10='" + column10 + '\'' +
+                ", dbId='" + dbId + '\'' +
+                ", createDate='" + createDate + '\'' +
+                ", updateDate='" + updateDate + '\'' +
+                '}';
+    }
 
 }

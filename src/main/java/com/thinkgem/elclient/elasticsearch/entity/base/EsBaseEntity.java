@@ -7,13 +7,15 @@ import lombok.Data;
 @Data
 public class EsBaseEntity {
 
-    @EsFieldData(dataName= EsConfig.El_KEYWORD)
+    private String esId;
+
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "db_id")
     public String dbId;
 
-    @EsFieldData(dataName= EsConfig.EL_DATE)
+    @EsFieldData(dataName=EsConfig.EL_DATE, elName = "create_date")
     public String createDate;
 
-    @EsFieldData(dataName=EsConfig.EL_DATE)
+    @EsFieldData(dataName=EsConfig.EL_DATE, elName = "update_date")
     public String updateDate;
 
 }

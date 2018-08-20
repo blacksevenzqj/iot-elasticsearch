@@ -1,5 +1,6 @@
 package com.thinkgem.elclient.elasticsearch.util;
 
+import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -16,8 +17,17 @@ public class EsUtils {
         Field[] filds = obj.getClass().getFields();
         String[] strs = new String[filds.length * 2];
         for(int i=0,j=0; i<filds.length; i++,j++){
-            strs[j] = filds[i].getName();
-            strs[++j] = String.valueOf(filds[i].get(obj));
+            try {
+                String elName = filds[i].getAnnotation(EsFieldData.class).elName();
+                if (StringUtils.isNotBlank(elName)) {
+                    strs[j] = elName;
+                } else {
+                    strs[j] = filds[i].getName();
+                }
+                strs[++j] = String.valueOf(filds[i].get(obj));
+            }catch (Exception e){
+                continue;
+            }
         }
         return strs;
     }

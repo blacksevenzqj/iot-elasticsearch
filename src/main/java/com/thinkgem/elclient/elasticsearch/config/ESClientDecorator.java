@@ -4,6 +4,7 @@ import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -16,21 +17,20 @@ import java.util.Map;
  */
 public class ESClientDecorator implements InitializingBean, DisposableBean {
 
+    private ElasticsProperties elasticsProperties;
+
+    private RestClientBuilder builder;
+
+    private RestClient restClient;
+
     private RestHighLevelClient restHighLevelClient;
 
     private HttpHost httpHost;
 
     private static Map<String, Map> mapType = new HashMap<>();
 
-    public ESClientDecorator(HttpHost httpHost) {
-        this.httpHost = httpHost;
-    }
-
-    public RestHighLevelClient getRestHighLevelClient() {
-        if (restHighLevelClient == null) {
-            restHighLevelClient = new RestHighLevelClient(RestClient.builder(httpHost));
-        }
-        return restHighLevelClient;
+    public ESClientDecorator(ElasticsProperties elasticsProperties) {
+        this.elasticsProperties = elasticsProperties;
     }
 
     @Override
@@ -69,12 +69,66 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        restHighLevelClient.close();
+        if (restHighLevelClient != null) {
+            try {
+                restHighLevelClient.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         mapType = null;
     }
 
     public static Map<String, Map> getMapType(){
         return mapType;
+    }
+
+    /**
+     * ==============================================================================================================
+     */
+
+    public RestHighLevelClient getRestHighLevelClient() {
+        if (restHighLevelClient == null) {
+            init();
+        }
+        return restHighLevelClient;
+    }
+
+    private void init(){
+        if(httpHost == null){
+            httpHost = new HttpHost(elasticsProperties.getClusterNodes(), elasticsProperties.getPort());
+        }
+        builder = RestClient.builder(httpHost);
+        if(elasticsProperties.isConnectTimeConfig()){
+            setConnectTimeOutConfig();
+        }
+        if(elasticsProperties.isConnectNumConfig()){
+            setMutiConnectConfig();
+        }
+        restClient = builder.build();
+        restHighLevelClient = new RestHighLevelClient(builder);
+    }
+
+    /**
+     *  主要关于异步httpclient的连接延时配置
+     */
+    private void setConnectTimeOutConfig(){
+        builder.setRequestConfigCallback(requestConfigBuilder -> {
+            requestConfigBuilder.setConnectTimeout(elasticsProperties.getConnectTimeOut());
+            requestConfigBuilder.setSocketTimeout(elasticsProperties.getSocketTimeOut());
+            requestConfigBuilder.setConnectionRequestTimeout(elasticsProperties.getConnectionRequestTimeOut());
+            return requestConfigBuilder;
+        });
+    }
+    /**
+     *  主要关于异步httpclient的连接数配置
+     */
+    private void setMutiConnectConfig(){
+        builder.setHttpClientConfigCallback(httpClientBuilder -> {
+            httpClientBuilder.setMaxConnTotal(elasticsProperties.getMaxConnectNum());
+            httpClientBuilder.setMaxConnPerRoute(elasticsProperties.getMaxConnectPerRoute());
+            return httpClientBuilder;
+        });
     }
 
 

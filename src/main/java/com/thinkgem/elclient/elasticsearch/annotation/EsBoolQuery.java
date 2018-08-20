@@ -5,18 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Es6Index {
+public @interface EsBoolQuery {
 
-    int numberOfShards() default 5;
-
-    int numberOfReplicas() default 1;
-
-    String indexName() default "";
-
-    String typeName() default "_doc";
-
-    String routingName() default "";
+    String boolTypeName() default "";
 
 }

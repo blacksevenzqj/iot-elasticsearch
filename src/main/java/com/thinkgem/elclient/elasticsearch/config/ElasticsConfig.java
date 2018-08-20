@@ -1,6 +1,5 @@
 package com.thinkgem.elclient.elasticsearch.config;
 
-import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,7 +25,7 @@ public class ElasticsConfig {
     @Bean
     @Scope("singleton")
     public ESClientDecorator getEsClientDecorator() {
-        return new ESClientDecorator(new HttpHost(elasticsProperties.getClusterNodes(), elasticsProperties.getPort()));
+        return new ESClientDecorator(elasticsProperties);
     }
 
 }

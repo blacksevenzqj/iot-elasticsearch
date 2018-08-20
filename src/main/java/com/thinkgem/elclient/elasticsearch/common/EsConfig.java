@@ -38,4 +38,11 @@ public interface EsConfig {
         String SEARCH_ANALYZER = "search_analyzer";
     }
 
+    interface BoolQuery{
+        String MUST = "must";
+        String MUST_NOT = "must_not";
+        String FILTER = "filter";
+        String SHOULD = "should";
+    }
+
 }

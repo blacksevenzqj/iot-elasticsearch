@@ -1,5 +1,8 @@
 package com.thinkgem.elclient.test;
 
+import com.alibaba.fastjson.JSON;
+import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,6 +49,5 @@ public class Test {
         }
 
     }
-
 
 }

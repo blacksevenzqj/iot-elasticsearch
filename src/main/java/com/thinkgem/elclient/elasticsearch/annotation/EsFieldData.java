@@ -2,7 +2,6 @@ package com.thinkgem.elclient.elasticsearch.annotation;
 
 
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,8 +13,10 @@ public @interface EsFieldData {
 
     String dataName() default "";
 
-    AnalyzerConfigEnum analyzerType() default AnalyzerConfigEnum.IK;
+    String elName() default "";
 
-    AnalyzerConfigEnum analyzerSearchType() default AnalyzerConfigEnum.IK_SEARCH;
+    AnalyzerConfigEnum analyzerType() default AnalyzerConfigEnum.NULL;
+
+    AnalyzerConfigEnum analyzerSearchType() default AnalyzerConfigEnum.NULL;
 
 }

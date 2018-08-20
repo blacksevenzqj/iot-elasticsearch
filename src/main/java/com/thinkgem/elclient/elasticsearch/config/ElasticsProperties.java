@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>elastics配置</p>
- *
- * @author: XianGuo
  * @date: 2018年01月23日
  */
 @ConfigurationProperties(prefix = "elasticsearch.server")
@@ -28,5 +26,19 @@ public class ElasticsProperties {
      */
     private int port;
 
+
+    private boolean connectTimeConfig;
+
+    private boolean connectNumConfig;
+
+    private int connectTimeOut;
+
+    private int socketTimeOut;
+
+    private int connectionRequestTimeOut;
+
+    private int maxConnectNum;
+
+    private int maxConnectPerRoute;
 
 }
