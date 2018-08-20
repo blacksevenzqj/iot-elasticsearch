@@ -10,6 +10,16 @@ import lombok.Data;
 @Es6Index(numberOfShards=5, numberOfReplicas=1, indexName="equipmentdata", routingName="equipment")
 public class EquipmentData extends EsBaseEntity {
 
+    @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "db_id")
+    public String dbId;
+
+    @EsFieldData(dataName=EsConfig.EL_DATE, elName = "create_date")
+    public String createDate;
+
+    @EsFieldData(dataName=EsConfig.EL_DATE, elName = "update_date")
+    public String updateDate;
+
+
     @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "equipment_id")
     public String equipmentId;
 

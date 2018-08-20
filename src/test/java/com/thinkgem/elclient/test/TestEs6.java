@@ -119,6 +119,15 @@ public class TestEs6 {
     }
 
 
+    /**
+     *
+     {
+         "esPageInfo":{"pageNum":1,"pageSize":10,"pageStart":0},
+         "shouldTerm":{"create_date":["2018-08-06","2018-08-09"]},
+         "range":{"create_date":["2018-08-06 14:40:07","2018-08-17"]},
+         "term":{"equipment_id":"8588ceaf5d70499e93fb1f824bc85ba1"}
+     }
+     */
     @Test
     public void pageQueryRequest() throws Exception {
         EsPageInfo esPageInfo = new EsPageInfo();
