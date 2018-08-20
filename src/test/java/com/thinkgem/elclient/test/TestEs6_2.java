@@ -99,4 +99,28 @@ public class TestEs6_2 {
     }
 
 
+
+    @Test
+    public void aggQueryRequest() throws Exception {
+//        EsPageInfo esPageInfo = new EsPageInfo();
+//        esPageInfo.setPageSize(10);
+//        esPageInfo.setPageNum(1);
+
+//        Map<String, Object[]> termsMap = new HashMap<>();
+//        Object[] obj = new Object[2];
+//        obj[0] = "serverdingshi";
+//        obj[1] = "eyBITypD";
+//        termsMap.put("clientid", obj);
+
+        QueryEntry queryEntry = new QueryEntry();
+        queryEntry.setTClass(MqttPayLoad.class);
+        queryEntry.setOrderField("updateDate");
+
+        String str = JSON.toJSONString(queryEntry);
+        System.out.println(str);
+
+        RestResult<List<MqttPayLoad>> restResult = es6ServiceImpl.aggQueryRequest(queryEntry);
+        System.out.println(restResult.getData().size() + "___" + restResult.getData());
+    }
+
 }

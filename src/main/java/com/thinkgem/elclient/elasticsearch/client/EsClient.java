@@ -256,4 +256,17 @@ public class EsClient {
         return list;
     }
 
+    public <T> List<T> aggSearch(SearchRequest request, Class<T> tClass) {
+        List<T> list = new ArrayList<>();
+        try {
+            SearchResponse response = client.search(request);
+            if (response.getHits() != null) {
+                response.getHits().forEach(item -> System.out.println(item));
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        return list;
+    }
+
 }

@@ -18,6 +18,10 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.Scroll;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -187,9 +191,11 @@ public class Es6ServiceImpl {
         // 查询语句的核心，查询结果的排序，查询结果截取部分返回等一系列配置
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // 结果开始处
-        searchSourceBuilder.from(queryEntry.getEsPageInfo().getPageStart());
-        // 查询结果终止处
-        searchSourceBuilder.size(queryEntry.getEsPageInfo().getPageSize());
+        if(queryEntry.getEsPageInfo() != null) {
+            searchSourceBuilder.from(queryEntry.getEsPageInfo().getPageStart());
+            // 查询结果终止处
+            searchSourceBuilder.size(queryEntry.getEsPageInfo().getPageSize());
+        }
         // 查询的等待时间
         searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
@@ -214,6 +220,17 @@ public class Es6ServiceImpl {
                 if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
                     TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery(entry.getKey(), entry.getValue());
                     boolBuilder.filter(termQueryBuilder);
+                }
+            }
+        }
+
+        Map<String, Object[]> termsMap = queryEntry.getTerms();
+        if(termsMap != null && !termsMap.isEmpty()){
+            for (Map.Entry<String, Object[]> entry : termsMap.entrySet()) {
+                log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+                if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null && entry.getValue().length > 0) {
+                    TermsQueryBuilder termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
+                    boolBuilder.filter(termsQueryBuilder);
                 }
             }
         }
@@ -267,7 +284,52 @@ public class Es6ServiceImpl {
 
 
 
+    public  <T> RestResult<List<T>> aggQueryRequest(QueryEntry<T> queryEntry){
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(queryEntry.getTClass().getAnnotation(Es6Index.class).indexName());
+        searchRequest.types(queryEntry.getTClass().getAnnotation(Es6Index.class).typeName());
 
+        // 这个sourcebuilder就类似于查询语句中最外层的部分。包括查询分页的起始，
+        // 查询语句的核心，查询结果的排序，查询结果截取部分返回等一系列配置
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        if(queryEntry.getEsPageInfo() != null) {
+            // 结果开始处
+            searchSourceBuilder.from(queryEntry.getEsPageInfo().getPageStart());
+            // 查询结果终止处
+            searchSourceBuilder.size(queryEntry.getEsPageInfo().getPageSize());
+        }
+        // 查询的等待时间
+        searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+
+//        TermsQueryBuilder termsQueryBuilder = null;
+//        Map<String, Object[]> termsMap = queryEntry.getTerms();
+//        if(termsMap != null && !termsMap.isEmpty()){
+//            for (Map.Entry<String, Object[]> entry : termsMap.entrySet()) {
+//                log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+//                if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null && entry.getValue().length > 0) {
+//                    termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
+//                }
+//            }
+//        }
+
+//        AggregationBuilders
+//        MaxAggregationBuilder updateDateBuilder = AggregationBuilders.max("updateDate");
+//
+//        TermsAggregationBuilder onlineBuilder = AggregationBuilders.terms("online");
+//        onlineBuilder.subAggregation(updateDateBuilder);
+
+        TermsAggregationBuilder clientidBuilder = AggregationBuilders.terms("clientid");
+//        clientidBuilder.subAggregation(onlineBuilder);
+
+        // 排序
+//        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
+//        searchSourceBuilder.query(termsQueryBuilder);
+        searchSourceBuilder.aggregation(clientidBuilder);
+        searchSourceBuilder.size(0);
+        log.info(searchSourceBuilder.toString());
+        return RestResult.getSuccessResult(esClient.aggSearch(searchRequest.source(searchSourceBuilder), queryEntry.getTClass()));
+    }
 
 
 }

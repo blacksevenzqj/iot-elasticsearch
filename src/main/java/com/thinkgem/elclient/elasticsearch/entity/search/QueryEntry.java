@@ -19,6 +19,9 @@ public class QueryEntry<T> {
     private Map<String, Object> term;
 
     @EsBoolQuery(boolTypeName = EsConfig.BoolQuery.FILTER)
+    private Map<String, Object[]> terms;
+
+    @EsBoolQuery(boolTypeName = EsConfig.BoolQuery.FILTER)
     private Map<String, Object[]> range;
 
     @EsBoolQuery(boolTypeName = EsConfig.BoolQuery.SHOULD)
