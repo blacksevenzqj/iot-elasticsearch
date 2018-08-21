@@ -106,11 +106,11 @@ public class TestEs6_2 {
 //        esPageInfo.setPageSize(10);
 //        esPageInfo.setPageNum(1);
 
-//        Map<String, Object[]> termsMap = new HashMap<>();
-//        Object[] obj = new Object[2];
-//        obj[0] = "serverdingshi";
-//        obj[1] = "eyBITypD";
-//        termsMap.put("clientid", obj);
+        Map<String, Object[]> termsMap = new HashMap<>();
+        Object[] obj = new Object[2];
+        obj[0] = "serverdingshi";
+        obj[1] = "eyBITypD";
+        termsMap.put("clientid", obj);
 
         QueryEntry queryEntry = new QueryEntry();
         queryEntry.setTClass(MqttPayLoad.class);

@@ -6,6 +6,8 @@ import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.config.ESClientDecorator;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
+import com.thinkgem.elclient.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
@@ -31,14 +33,15 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -256,17 +259,71 @@ public class EsClient {
         return list;
     }
 
-    public <T> List<T> aggSearch(SearchRequest request, Class<T> tClass) {
+    public <T> List<T> aggSearch(SearchRequest searchRequest, Class<T> tClass) {
         List<T> list = new ArrayList<>();
         try {
-            SearchResponse response = client.search(request);
-            if (response.getHits() != null) {
-                response.getHits().forEach(item -> System.out.println(item));
-            }
+            AggResult aggResult = new AggResult();
+            SearchResponse searchResponse = client.search(searchRequest);
+            Aggregations aggs = searchResponse.getAggregations();
+            Map<String, Aggregation> map = aggs.getAsMap();
+            getAggregations(map, aggResult);
+            log.info(aggResult.toString());
         }catch (Exception e){
             log.error(e.getMessage());
         }
         return list;
     }
+
+    private void getAggregations(Map<String, Aggregation> map,  AggResult aggResult){
+        for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
+            log.info("KeyOne = " + entry.getKey() + ", Value = " + entry.getValue());
+            aggResult.setGroupName(entry.getKey());
+            Terms byStateAggs = (Terms)entry.getValue();
+            List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
+            aggResult.setGroupCount(aggList.size());
+            for (Terms.Bucket bucket : aggList) {
+                log.info("keyTwo:"+bucket.getKeyAsString()+",docCount:"+bucket.getDocCount());
+                AggResult temp = new AggResult();
+                temp.setKeyName(bucket.getKeyAsString());
+                temp.setKeyCount(bucket.getDocCount());
+                aggResult.getAgg().add(temp);
+                Aggregations aggregations = bucket.getAggregations();
+                if(aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()){
+                    getSubAggregations(aggregations.getAsMap(), temp);
+                }
+            }
+        }
+    }
+
+    private void getSubAggregations(Map<String, Aggregation> map,  AggResult aggResult){
+        for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
+            log.info("KeySubOne = " + entry.getKey() + ", Value = " + entry.getValue());
+            AggResult sub = new AggResult();
+            aggResult.getAgg().add(sub);
+            if("max_by_updateDate".equalsIgnoreCase(entry.getKey())){
+                sub.setKeyName(entry.getKey());
+                sub.setKeyCount(Long.valueOf(map.size()));
+                Max byStateAggs = (Max)entry.getValue();
+                sub.setKeyMaxDate(DateUtils.getDateByDouble(byStateAggs.getValue()));
+            }else{
+                Terms byStateAggs = (Terms)entry.getValue();
+                List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
+                sub.setGroupName(entry.getKey());
+                sub.setGroupCount(aggList.size());
+                for (Terms.Bucket bucket : aggList) {
+                    log.info("keySubTwo:" + bucket.getKeyAsString()+",docCount:" + bucket.getDocCount());
+                    AggResult temp = new AggResult();
+                    temp.setKeyName(bucket.getKeyAsString());
+                    temp.setKeyCount(bucket.getDocCount());
+                    sub.getAgg().add(temp);
+                    Aggregations aggregations = bucket.getAggregations();
+                    if(aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()){
+                        getSubAggregations(aggregations.getAsMap(), temp);
+                    }
+                }
+            }
+        }
+    }
+
 
 }

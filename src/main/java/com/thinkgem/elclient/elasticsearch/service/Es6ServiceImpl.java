@@ -301,30 +301,29 @@ public class Es6ServiceImpl {
         // 查询的等待时间
         searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-
-//        TermsQueryBuilder termsQueryBuilder = null;
-//        Map<String, Object[]> termsMap = queryEntry.getTerms();
-//        if(termsMap != null && !termsMap.isEmpty()){
-//            for (Map.Entry<String, Object[]> entry : termsMap.entrySet()) {
-//                log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-//                if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null && entry.getValue().length > 0) {
-//                    termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
-//                }
-//            }
-//        }
+        TermsQueryBuilder termsQueryBuilder = null;
+        Map<String, Object[]> termsMap = queryEntry.getTerms();
+        if(termsMap != null && !termsMap.isEmpty()){
+            for (Map.Entry<String, Object[]> entry : termsMap.entrySet()) {
+                log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+                if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null && entry.getValue().length > 0) {
+                    termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
+                }
+            }
+        }
 
 //        AggregationBuilders
-//        MaxAggregationBuilder updateDateBuilder = AggregationBuilders.max("updateDate");
-//
-//        TermsAggregationBuilder onlineBuilder = AggregationBuilders.terms("online");
-//        onlineBuilder.subAggregation(updateDateBuilder);
+        MaxAggregationBuilder updateDateBuilder = AggregationBuilders.max("max_by_updateDate").field("updateDate");
 
-        TermsAggregationBuilder clientidBuilder = AggregationBuilders.terms("clientid");
-//        clientidBuilder.subAggregation(onlineBuilder);
+        TermsAggregationBuilder onlineBuilder = AggregationBuilders.terms("group_by_online").field("online");
+        onlineBuilder.subAggregation(updateDateBuilder);
+
+        TermsAggregationBuilder clientidBuilder = AggregationBuilders.terms("group_by_clientid").field("clientid");
+        clientidBuilder.subAggregation(onlineBuilder);
 
         // 排序
-//        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
-//        searchSourceBuilder.query(termsQueryBuilder);
+        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
+        searchSourceBuilder.query(termsQueryBuilder);
         searchSourceBuilder.aggregation(clientidBuilder);
         searchSourceBuilder.size(0);
         log.info(searchSourceBuilder.toString());

@@ -2,11 +2,15 @@ package com.thinkgem.elclient.test;
 
 import com.alibaba.fastjson.JSON;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
+import com.thinkgem.elclient.utils.DateUtils;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Test {
 
@@ -47,6 +51,32 @@ public class Test {
         for(String s : temp){
             System.out.println(s);
         }
+
+        double d = 88.88;
+        long l = Math.round(d);
+        System.out.println(l);
+
+
+        double e = 1.532167413E12;
+        System.out.println(String.valueOf(e));
+        long ll = Math.round(e);
+        System.out.println(ll);
+
+        long ooo = (long)e;
+        System.out.println(ooo);
+
+        BigDecimal big = BigDecimal.valueOf(1.532167413E12);
+        String str = big.toString();
+        System.out.println(str);
+        System.out.println(big.longValue());
+        Date date2 = new Date(big.longValue());
+        System.out.println(date2);
+
+        System.out.println(DateUtils.getDateStrByDouble(e));
+
+
+        Date date3 = new Date(1532167413000L);
+        System.out.println(date3);
 
     }
 
