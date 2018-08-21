@@ -2,11 +2,14 @@ package com.thinkgem.elclient.test;
 
 import com.alibaba.fastjson.JSON;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
+import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
 import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -119,8 +122,29 @@ public class TestEs6_2 {
         String str = JSON.toJSONString(queryEntry);
         System.out.println(str);
 
-        RestResult<List<MqttPayLoad>> restResult = es6ServiceImpl.aggQueryRequest(queryEntry);
-        System.out.println(restResult.getData().size() + "___" + restResult.getData());
+        AggQueryEntry aggQueryEntry = new AggQueryEntry();
+
+        AggQueryEntry.AggQueryEntryType maxByUpdateDate = aggQueryEntry.new AggQueryEntryType();
+        maxByUpdateDate.setGroupName("max_by_updateDate");
+        maxByUpdateDate.setFieldName("updateDate");
+        maxByUpdateDate.setAggType(EsConfig.aggQuery.MAX);
+
+        AggQueryEntry.AggQueryEntryType groupByOnline = aggQueryEntry.new AggQueryEntryType();
+        groupByOnline.setGroupName("group_by_online");
+        groupByOnline.setFieldName("online");
+        groupByOnline.setAggType(EsConfig.aggQuery.TERMS);
+
+        AggQueryEntry.AggQueryEntryType groupByClientid = aggQueryEntry.new AggQueryEntryType();
+        groupByClientid.setGroupName("group_by_clientid");
+        groupByClientid.setFieldName("clientid");
+        groupByClientid.setAggType(EsConfig.aggQuery.TERMS);
+
+//        aggQueryEntry.getAggQueryList().add(maxByUpdateDate);
+//        aggQueryEntry.getAggQueryList().add(groupByOnline);
+        aggQueryEntry.getAggQueryList().add(groupByClientid);
+
+        RestResult<AggResult> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+        System.out.println("!!!!!!!!!!!!!!!!!" + restResult.getData());
     }
 
 }

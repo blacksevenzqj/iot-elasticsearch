@@ -2,9 +2,12 @@ package com.thinkgem.elclient.elasticsearch.service;
 
 import com.thinkgem.elclient.elasticsearch.annotation.Es6Index;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
+import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -284,7 +288,12 @@ public class Es6ServiceImpl {
 
 
 
-    public  <T> RestResult<List<T>> aggQueryRequest(QueryEntry<T> queryEntry){
+    public <T> RestResult aggQueryRequest(QueryEntry<T> queryEntry, AggQueryEntry aggQueryEntry){
+
+        if(aggQueryEntry == null || aggQueryEntry.getAggQueryList().isEmpty()){
+            return RestResult.getFailResult(500, "查询参数为NULL");
+        }
+
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(queryEntry.getTClass().getAnnotation(Es6Index.class).indexName());
         searchRequest.types(queryEntry.getTClass().getAnnotation(Es6Index.class).typeName());
@@ -312,22 +321,40 @@ public class Es6ServiceImpl {
             }
         }
 
-//        AggregationBuilders
-        MaxAggregationBuilder updateDateBuilder = AggregationBuilders.max("max_by_updateDate").field("updateDate");
+//        MaxAggregationBuilder updateDateBuilder = AggregationBuilders.max("max_by_updateDate").field("updateDate");
+//        TermsAggregationBuilder onlineBuilder = AggregationBuilders.terms("group_by_online").field("online");
+//        onlineBuilder.subAggregation(updateDateBuilder);
+//        TermsAggregationBuilder clientidBuilder = AggregationBuilders.terms("group_by_clientid").field("clientid");
+//        clientidBuilder.subAggregation(onlineBuilder);
 
-        TermsAggregationBuilder onlineBuilder = AggregationBuilders.terms("group_by_online").field("online");
-        onlineBuilder.subAggregation(updateDateBuilder);
-
-        TermsAggregationBuilder clientidBuilder = AggregationBuilders.terms("group_by_clientid").field("clientid");
-        clientidBuilder.subAggregation(onlineBuilder);
+        AggregationBuilder finalAggregationBuilder;
+        List<AggregationBuilder> aggregationBuilderList = new ArrayList<>();
+        List<AggQueryEntry.AggQueryEntryType> aggQueryList = aggQueryEntry.getAggQueryList();
+        for(AggQueryEntry.AggQueryEntryType aggQueryEntryType : aggQueryList){
+            if(EsConfig.aggQuery.MAX.equalsIgnoreCase(aggQueryEntryType.getAggType())){
+                MaxAggregationBuilder maxDateBuilder = AggregationBuilders.max(aggQueryEntryType.getGroupName()).field(aggQueryEntryType.getFieldName());
+                aggregationBuilderList.add(maxDateBuilder);
+            }else if(EsConfig.aggQuery.TERMS.equalsIgnoreCase(aggQueryEntryType.getAggType())){
+                TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(aggQueryEntryType.getGroupName()).field(aggQueryEntryType.getFieldName());
+                aggregationBuilderList.add(termsBuilder);
+            }
+        }
+        if(aggregationBuilderList.size() > 1) {
+            for (int i = 0, j = 1; j < aggregationBuilderList.size(); i++,j++) {
+                aggregationBuilderList.get(j).subAggregation(aggregationBuilderList.get(i));
+            }
+            finalAggregationBuilder = aggregationBuilderList.get(aggregationBuilderList.size()-1);
+        }else{
+            finalAggregationBuilder = aggregationBuilderList.get(0);
+        }
 
         // 排序
         searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
         searchSourceBuilder.query(termsQueryBuilder);
-        searchSourceBuilder.aggregation(clientidBuilder);
+        searchSourceBuilder.aggregation(finalAggregationBuilder);
         searchSourceBuilder.size(0);
         log.info(searchSourceBuilder.toString());
-        return RestResult.getSuccessResult(esClient.aggSearch(searchRequest.source(searchSourceBuilder), queryEntry.getTClass()));
+        return RestResult.getSuccessResult(esClient.aggSearch(searchRequest.source(searchSourceBuilder)));
     }
 
 

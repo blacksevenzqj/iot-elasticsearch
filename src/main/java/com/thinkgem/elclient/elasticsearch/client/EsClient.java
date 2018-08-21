@@ -6,6 +6,7 @@ import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.config.ESClientDecorator;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
 import com.thinkgem.elclient.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -259,10 +260,9 @@ public class EsClient {
         return list;
     }
 
-    public <T> List<T> aggSearch(SearchRequest searchRequest, Class<T> tClass) {
-        List<T> list = new ArrayList<>();
+    public AggResult aggSearch(SearchRequest searchRequest) {
+        AggResult aggResult = new AggResult();
         try {
-            AggResult aggResult = new AggResult();
             SearchResponse searchResponse = client.search(searchRequest);
             Aggregations aggs = searchResponse.getAggregations();
             Map<String, Aggregation> map = aggs.getAsMap();
@@ -271,7 +271,7 @@ public class EsClient {
         }catch (Exception e){
             log.error(e.getMessage());
         }
-        return list;
+        return aggResult;
     }
 
     private void getAggregations(Map<String, Aggregation> map,  AggResult aggResult){

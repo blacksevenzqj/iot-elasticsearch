@@ -45,4 +45,9 @@ public interface EsConfig {
         String SHOULD = "should";
     }
 
+    interface aggQuery{
+        String TERMS = "terms";
+        String MAX = "max";
+    }
+
 }
