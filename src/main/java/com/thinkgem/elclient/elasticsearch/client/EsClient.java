@@ -6,8 +6,7 @@ import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.config.ESClientDecorator;
-import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
-import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
 import com.thinkgem.elclient.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -260,8 +259,8 @@ public class EsClient {
         return list;
     }
 
-    public AggResult aggSearch(SearchRequest searchRequest) {
-        AggResult aggResult = new AggResult();
+    public AggResultAll aggSearch(SearchRequest searchRequest) {
+        AggResultAll aggResult = new AggResultAll();
         try {
             SearchResponse searchResponse = client.search(searchRequest);
             Aggregations aggs = searchResponse.getAggregations();
@@ -274,7 +273,7 @@ public class EsClient {
         return aggResult;
     }
 
-    private void getAggregations(Map<String, Aggregation> map,  AggResult aggResult){
+    private void getAggregations(Map<String, Aggregation> map,  AggResultAll aggResult){
         for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
             log.info("KeyOne = " + entry.getKey() + ", Value = " + entry.getValue());
             aggResult.setGroupName(entry.getKey());
@@ -283,7 +282,7 @@ public class EsClient {
             aggResult.setGroupCount(aggList.size());
             for (Terms.Bucket bucket : aggList) {
                 log.info("keyTwo:"+bucket.getKeyAsString()+",docCount:"+bucket.getDocCount());
-                AggResult temp = new AggResult();
+                AggResultAll temp = new AggResultAll();
                 temp.setKeyName(bucket.getKeyAsString());
                 temp.setKeyCount(bucket.getDocCount());
                 aggResult.getAgg().add(temp);
@@ -295,10 +294,10 @@ public class EsClient {
         }
     }
 
-    private void getSubAggregations(Map<String, Aggregation> map,  AggResult aggResult){
+    private void getSubAggregations(Map<String, Aggregation> map,  AggResultAll aggResult){
         for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
             log.info("KeySubOne = " + entry.getKey() + ", Value = " + entry.getValue());
-            AggResult sub = new AggResult();
+            AggResultAll sub = new AggResultAll();
             aggResult.getAgg().add(sub);
             if("max_by_updateDate".equalsIgnoreCase(entry.getKey())){
                 sub.setKeyName(entry.getKey());
@@ -312,7 +311,7 @@ public class EsClient {
                 sub.setGroupCount(aggList.size());
                 for (Terms.Bucket bucket : aggList) {
                     log.info("keySubTwo:" + bucket.getKeyAsString()+",docCount:" + bucket.getDocCount());
-                    AggResult temp = new AggResult();
+                    AggResultAll temp = new AggResultAll();
                     temp.setKeyName(bucket.getKeyAsString());
                     temp.setKeyCount(bucket.getDocCount());
                     sub.getAgg().add(temp);

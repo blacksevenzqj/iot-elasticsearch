@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class AggResult {
+public class AggResultAll {
 
     private String groupName;
 
@@ -21,6 +21,6 @@ public class AggResult {
 
     private Date keyMaxDate;
 
-    List<AggResult> agg = new ArrayList<>();
+    List<AggResultAll> agg = new ArrayList<>();
 
 }

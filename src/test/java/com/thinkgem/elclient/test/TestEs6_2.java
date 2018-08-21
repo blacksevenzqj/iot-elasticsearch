@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
-import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
 import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
-import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,12 +138,19 @@ public class TestEs6_2 {
         groupByClientid.setFieldName("clientid");
         groupByClientid.setAggType(EsConfig.aggQuery.TERMS);
 
-//        aggQueryEntry.getAggQueryList().add(maxByUpdateDate);
-//        aggQueryEntry.getAggQueryList().add(groupByOnline);
+        aggQueryEntry.getAggQueryList().add(maxByUpdateDate);
+        aggQueryEntry.getAggQueryList().add(groupByOnline);
         aggQueryEntry.getAggQueryList().add(groupByClientid);
 
-        RestResult<AggResult> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+//        RestResult<AggResultAll> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+//        System.out.println("!!!!!!!!!!!!!!!!!" + restResult.getData());
+
+        RestResult<List<AggResultEntry>> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
         System.out.println("!!!!!!!!!!!!!!!!!" + restResult.getData());
+        List<AggResultEntry> list = restResult.getData();
+        for(AggResultEntry aggResultEntry : list){
+            System.out.println(aggResultEntry);
+        }
     }
 
 }

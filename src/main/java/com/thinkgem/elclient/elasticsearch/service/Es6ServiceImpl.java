@@ -7,7 +7,8 @@ import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
-import com.thinkgem.elclient.elasticsearch.entity.search.AggResult;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -354,8 +355,47 @@ public class Es6ServiceImpl {
         searchSourceBuilder.aggregation(finalAggregationBuilder);
         searchSourceBuilder.size(0);
         log.info(searchSourceBuilder.toString());
-        return RestResult.getSuccessResult(esClient.aggSearch(searchRequest.source(searchSourceBuilder)));
+
+        AggResultAll temp = esClient.aggSearch(searchRequest.source(searchSourceBuilder));
+        return RestResult.getSuccessResult(getResultAggResult(temp));
     }
 
+    private List<AggResultEntry> getResultAggResult(AggResultAll temp){
+        List<AggResultEntry> aggResultEntryList = new ArrayList<>();
+        if(temp != null && !temp.getAgg().isEmpty()){
+            List<AggResultAll> list = temp.getAgg();
+            for(AggResultAll agg : list){
+                if(StringUtils.isNoneBlank(agg.getKeyName())){
+                    AggResultEntry aggResultEntry = new AggResultEntry();
+                    aggResultEntry.setClientId(agg.getKeyName());
+                    aggResultEntry.setClientCount(agg.getKeyCount());
+                    aggResultEntryList.add(aggResultEntry);
+                    if(!agg.getAgg().isEmpty()){
+                        getResultAggSubResult(aggResultEntry, agg.getAgg());
+                    }
+                }
+            }
+        }
+        return aggResultEntryList;
+    }
+
+    private void getResultAggSubResult(AggResultEntry aggResultEntry, List<AggResultAll> list){
+        for(AggResultAll agg : list){
+            if(StringUtils.isNoneBlank(agg.getKeyName())){
+                AggResultEntry.AggResultSubEntry aggResultSubEntry = aggResultEntry.new AggResultSubEntry();
+                aggResultEntry.setAggResultSubEntry(aggResultSubEntry);
+                if("0".equalsIgnoreCase(agg.getKeyName())){
+                    aggResultSubEntry.setOnLine(agg.getKeyCount());
+                }else if("1".equalsIgnoreCase(agg.getKeyName())){
+                    aggResultSubEntry.setOffLine(agg.getKeyCount());
+                }else if("max_by_updateDate".equalsIgnoreCase(agg.getKeyName())){
+                    aggResultSubEntry.setMaxUpDate(agg.getKeyMaxDate());
+                }
+                if(!agg.getAgg().isEmpty()){
+                    getResultAggSubResult(aggResultEntry, agg.getAgg());
+                }
+            }
+        }
+    }
 
 }
