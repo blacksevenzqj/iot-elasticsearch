@@ -38,12 +38,12 @@ public class TestEs6_2 {
     @Test
     public void save() throws Exception {
         MqttPayLoad mqttPayLoad = new MqttPayLoad();
-        mqttPayLoad.setId("000001cb05b04a9fa18bb83e4079c215");
+        mqttPayLoad.setDbId("000001cb05b04a9fa18bb83e4079c216");
         mqttPayLoad.setPayLoad("{\"clientid\":\"serverdingshi\",\"username\":\"test\",\"ipaddress\":\"218.63.139.156\",\"clean_sess\":true,\"protocol\":3,\"connack\":0,\"ts\":1531965815}");
-        mqttPayLoad.setOnLine("0");
+        mqttPayLoad.setOnLine("1");
         mqttPayLoad.setClientId("serverdingshi");
         mqttPayLoad.setType("在线情况");
-        mqttPayLoad.setUpdateDate("2018-07-21 10:03:33");
+        mqttPayLoad.setUpdateDate("2018-08-21 10:03:33");
 
 
 //        mqttPayLoad.setId("0000b7545635424fa06f1ef059f4bd7b");
@@ -63,43 +63,6 @@ public class TestEs6_2 {
         es6ServiceImpl.createIndexDoc(MqttPayLoad.class, mqttPayLoad);
         Thread.currentThread().sleep(1000);
     }
-
-    @Test
-    public void pageQueryRequest() throws Exception {
-        EsPageInfo esPageInfo = new EsPageInfo();
-        esPageInfo.setPageSize(10);
-        esPageInfo.setPageNum(1);
-
-        Map<String, Object> termMap = new HashMap<>();
-        termMap.put("equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1");
-
-        Map<String, Object[]> rangeMap = new HashMap<>();
-        Object[] obj = new Object[2];
-//        obj[0] = "2018-08-06";
-        obj[0] = "2018-08-06 14:40:07";
-        obj[1] = "2018-08-17";
-        rangeMap.put("create_date", obj);
-
-        Map<String, Object[]> shouldMap = new HashMap<>();
-        Object[] objShould = new Object[2];
-        objShould[0] = "2018-08-06";
-        objShould[1] = "2018-08-09";
-        shouldMap.put("create_date", objShould);
-
-        QueryEntry queryEntry = new QueryEntry();
-        queryEntry.setTClass(EquipmentData.class);
-        queryEntry.setEsPageInfo(esPageInfo);
-        queryEntry.setRange(rangeMap);
-        queryEntry.setTerm(termMap);
-        queryEntry.setShouldTerm(shouldMap);
-
-        String str = JSON.toJSONString(queryEntry);
-        System.out.println(str);
-
-        RestResult<List<EquipmentData>> restResult = es6ServiceImpl.pageQueryRequest(queryEntry);
-        System.out.println(restResult.getData().size() + "___" + restResult.getData());
-    }
-
 
 
     @Test

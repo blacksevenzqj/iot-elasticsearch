@@ -11,7 +11,7 @@ import lombok.Data;
 public class MqttPayLoad extends EsBaseEntity {
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "id")
-    public String id;
+    public String dbId;
 
     @EsFieldData(dataName= EsConfig.El_KEYWORD, elName = "payload")
     public String payLoad;

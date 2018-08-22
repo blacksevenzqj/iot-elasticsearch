@@ -154,8 +154,8 @@ public class TestEs6 {
         queryEntry.setTClass(EquipmentData.class);
         queryEntry.setEsPageInfo(esPageInfo);
         queryEntry.setRange(rangeMap);
-//        queryEntry.setTerm(termMap);
-        queryEntry.setShouldTerm(shouldMap);
+        queryEntry.setTerm(termMap);
+//        queryEntry.setShouldTerm(shouldMap);
 
         String str = JSON.toJSONString(queryEntry);
         System.out.println(str);
