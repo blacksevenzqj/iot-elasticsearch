@@ -126,17 +126,17 @@ public class TestEs6_2 {
         AggQueryEntry.AggQueryEntryType maxByUpdateDate = aggQueryEntry.new AggQueryEntryType();
         maxByUpdateDate.setGroupName("max_by_updateDate");
         maxByUpdateDate.setFieldName("updateDate");
-        maxByUpdateDate.setAggType(EsConfig.aggQuery.MAX);
+        maxByUpdateDate.setAggType(EsConfig.AggQuery.MAX);
 
         AggQueryEntry.AggQueryEntryType groupByOnline = aggQueryEntry.new AggQueryEntryType();
         groupByOnline.setGroupName("group_by_online");
         groupByOnline.setFieldName("online");
-        groupByOnline.setAggType(EsConfig.aggQuery.TERMS);
+        groupByOnline.setAggType(EsConfig.AggQuery.TERMS);
 
         AggQueryEntry.AggQueryEntryType groupByClientid = aggQueryEntry.new AggQueryEntryType();
         groupByClientid.setGroupName("group_by_clientid");
         groupByClientid.setFieldName("clientid");
-        groupByClientid.setAggType(EsConfig.aggQuery.TERMS);
+        groupByClientid.setAggType(EsConfig.AggQuery.TERMS);
 
         aggQueryEntry.getAggQueryList().add(maxByUpdateDate);
         aggQueryEntry.getAggQueryList().add(groupByOnline);

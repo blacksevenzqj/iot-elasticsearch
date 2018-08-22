@@ -332,10 +332,10 @@ public class Es6ServiceImpl {
         List<AggregationBuilder> aggregationBuilderList = new ArrayList<>();
         List<AggQueryEntry.AggQueryEntryType> aggQueryList = aggQueryEntry.getAggQueryList();
         for(AggQueryEntry.AggQueryEntryType aggQueryEntryType : aggQueryList){
-            if(EsConfig.aggQuery.MAX.equalsIgnoreCase(aggQueryEntryType.getAggType())){
+            if(EsConfig.AggQuery.MAX.equalsIgnoreCase(aggQueryEntryType.getAggType())){
                 MaxAggregationBuilder maxDateBuilder = AggregationBuilders.max(aggQueryEntryType.getGroupName()).field(aggQueryEntryType.getFieldName());
                 aggregationBuilderList.add(maxDateBuilder);
-            }else if(EsConfig.aggQuery.TERMS.equalsIgnoreCase(aggQueryEntryType.getAggType())){
+            }else if(EsConfig.AggQuery.TERMS.equalsIgnoreCase(aggQueryEntryType.getAggType())){
                 TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(aggQueryEntryType.getGroupName()).field(aggQueryEntryType.getFieldName());
                 aggregationBuilderList.add(termsBuilder);
             }
@@ -381,19 +381,15 @@ public class Es6ServiceImpl {
 
     private void getResultAggSubResult(AggResultEntry aggResultEntry, List<AggResultAll> list){
         for(AggResultAll agg : list){
-            if(StringUtils.isNoneBlank(agg.getKeyName())){
-                AggResultEntry.AggResultSubEntry aggResultSubEntry = aggResultEntry.new AggResultSubEntry();
-                aggResultEntry.setAggResultSubEntry(aggResultSubEntry);
-                if("0".equalsIgnoreCase(agg.getKeyName())){
-                    aggResultSubEntry.setOnLine(agg.getKeyCount());
-                }else if("1".equalsIgnoreCase(agg.getKeyName())){
-                    aggResultSubEntry.setOffLine(agg.getKeyCount());
-                }else if("max_by_updateDate".equalsIgnoreCase(agg.getKeyName())){
-                    aggResultSubEntry.setMaxUpDate(agg.getKeyMaxDate());
-                }
-                if(!agg.getAgg().isEmpty()){
-                    getResultAggSubResult(aggResultEntry, agg.getAgg());
-                }
+            if(EsConfig.AggQuery.CustomizeGroupName.ON_LINE.equalsIgnoreCase(agg.getKeyName())){
+                aggResultEntry.getAggResultSubEntry().setOnLine(agg.getKeyCount());
+            }else if(EsConfig.AggQuery.CustomizeGroupName.OFF_LINE.equalsIgnoreCase(agg.getKeyName())){
+                aggResultEntry.getAggResultSubEntry().setOffLine(agg.getKeyCount());
+            }else if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(agg.getKeyName())){
+                aggResultEntry.getAggResultSubEntry().setMaxUpDate(agg.getKeyMaxDate());
+            }
+            if(!agg.getAgg().isEmpty()){
+                getResultAggSubResult(aggResultEntry, agg.getAgg());
             }
         }
     }

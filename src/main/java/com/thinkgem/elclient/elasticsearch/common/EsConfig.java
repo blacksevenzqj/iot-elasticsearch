@@ -45,9 +45,17 @@ public interface EsConfig {
         String SHOULD = "should";
     }
 
-    interface aggQuery{
+    interface AggQuery{
         String TERMS = "terms";
         String MAX = "max";
+
+        interface CustomizeGroupName{
+            String ON_LINE = "1";
+            String OFF_LINE = "0";
+            String MAX_UPDATE = "max_by_updateDate";
+        }
     }
+
+
 
 }

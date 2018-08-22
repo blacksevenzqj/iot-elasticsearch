@@ -21,8 +21,13 @@ public class EquipmentDataController {
     @Autowired
     EquipmentDataService equipmentDataService;
 
-    @RequestMapping(value="/getList", method= RequestMethod.POST)
-    public RestResult<List<EquipmentData>> getList(@RequestBody  QueryEntry<EquipmentData> queryEntry){
+    @RequestMapping(value="/getListByKv", method= RequestMethod.POST)
+    public RestResult<List<EquipmentData>> getListByKv(QueryEntry<EquipmentData> queryEntry){
+        return equipmentDataService.pageQueryRequest(queryEntry);
+    }
+
+    @RequestMapping(value="/getListByJson", method= RequestMethod.POST)
+    public RestResult<List<EquipmentData>> getListByJson(@RequestBody  QueryEntry<EquipmentData> queryEntry){
         return equipmentDataService.pageQueryRequest(queryEntry);
     }
 
