@@ -2,9 +2,9 @@ package com.thinkgem.elclient.service.impl;
 
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
-import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
 import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
 import com.thinkgem.elclient.service.MqttPayLoadService;
@@ -20,7 +20,7 @@ public class MqttPayLoadServiceImpl implements MqttPayLoadService {
     Es6ServiceImpl es6ServiceImpl;
 
     @Override
-    public RestResult<List<MqttPayLoad>> aggQueryRequest(QueryEntry<MqttPayLoad> queryEntry, AggQueryEntry aggQueryEntry) {
+    public RestResult<List<AggResultEntry>> aggQueryRequest(QueryEntry<MqttPayLoad> queryEntry, AggQueryEntry aggQueryEntry) {
         queryEntry.setTClass(MqttPayLoad.class);
         return es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
     }

@@ -3,6 +3,8 @@ package com.thinkgem.elclient.controller;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.util.CustomParamUtils;
 import com.thinkgem.elclient.service.MqttPayLoadService;
@@ -23,19 +25,17 @@ public class MqttPayLoadController {
     MqttPayLoadService mqttPayLoadService;
 
     @RequestMapping(value="/getListByClientIds", method= RequestMethod.GET)
-    public RestResult<List<MqttPayLoad>> getListByClientIds(String[] clientIds){
+    public RestResult<List<AggResultEntry>> getListByClientIds(String[] clientIds){
         if(clientIds == null || clientIds.length < 1){
             return RestResult.getFailResult(500, "参数为NULL");
         }
         try{
             QueryEntry queryEntry = CustomParamUtils.getQueryEntry(clientIds, MqttPayLoad.class);
-
-            //        return mqttPayLoadService.aggQueryRequest(queryEntry);
-            return null;
+            AggQueryEntry aggQueryEntry = CustomParamUtils.getAggQueryEntry(MqttPayLoad.class);
+            return mqttPayLoadService.aggQueryRequest(queryEntry, aggQueryEntry);
         }catch (Exception e){
             return RestResult.getFailResult(500, "参数错误");
         }
-
     }
 
     @RequestMapping(value="/save", method= RequestMethod.POST)
