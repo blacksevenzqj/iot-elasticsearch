@@ -1,6 +1,7 @@
 package com.thinkgem.elclient.service.impl;
 
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
+import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
@@ -26,4 +27,10 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
     public RestResult save(EquipmentData equipmentData) {
         return es6ServiceImpl.createIndexDoc(EquipmentData.class, equipmentData);
     }
+
+    @Override
+    public RestResult saveBulk(List<EsBaseEntity> addList) {
+        return es6ServiceImpl.processDocBulk(EquipmentData.class, addList, null, null);
+    }
+
 }

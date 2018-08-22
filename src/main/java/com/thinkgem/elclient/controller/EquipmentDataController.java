@@ -1,6 +1,7 @@
 package com.thinkgem.elclient.controller;
 
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
+import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.service.EquipmentDataService;
@@ -32,8 +33,13 @@ public class EquipmentDataController {
     }
 
     @RequestMapping(value="/save", method= RequestMethod.POST)
-    public RestResult<List<EquipmentData>> save(EquipmentData equipmentData){
+    public RestResult save(EquipmentData equipmentData){
         return equipmentDataService.save(equipmentData);
+    }
+
+    @RequestMapping(value="/saveBulk", method= RequestMethod.POST)
+    public RestResult saveBulk(List<EsBaseEntity> list){
+        return equipmentDataService.saveBulk(list);
     }
 
 }
