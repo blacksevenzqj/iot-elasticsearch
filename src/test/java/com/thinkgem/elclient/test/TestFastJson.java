@@ -2,7 +2,10 @@ package com.thinkgem.elclient.test;
 
 import com.alibaba.fastjson.JSON;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.util.CustomParamUtils;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
+import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
 
 public class TestFastJson {
 
@@ -27,6 +30,11 @@ public class TestFastJson {
 //        System.out.println(test2);
 //        System.out.println(test2.getAge());
 //        System.out.println(JSON.toJSONString(test2));
+
+        AggQueryEntry aggQueryEntry = CustomParamUtils.getAggQueryEntry(MqttPayLoad.class);
+        System.out.println(aggQueryEntry);
+
+
     }
 
 }

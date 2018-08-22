@@ -24,7 +24,6 @@ public interface EsConfig {
 
     String EL_DATE = "date";
 
-
     interface EsSearchConfig{
         String SEARCH_TITLE = "title";
     }
@@ -45,6 +44,13 @@ public interface EsConfig {
         String SHOULD = "should";
     }
 
+    interface FIELD_QUERY_TYPE{
+        String DEFAULT_TYPE = "default_type"; //默认
+        String SORT_TYPE = "sort_type"; //排序
+        String QUERY_TERM_TYPE = "query_term_type"; //查询：精确
+        String OTHER_TYPE = "other_type"; //其他
+    }
+
     interface AggQuery{
         String TERMS = "terms";
         String MAX = "max";
@@ -52,7 +58,10 @@ public interface EsConfig {
         interface CustomizeGroupName{
             String ON_LINE = "1";
             String OFF_LINE = "0";
+
             String MAX_UPDATE = "max_by_updateDate";
+            String GROUP_ON_LINE = "group_by_online";
+            String GROUP_BY_CLIENT_ID = "group_by_clientid";
         }
     }
 

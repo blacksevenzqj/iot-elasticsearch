@@ -79,6 +79,7 @@ public class TestEs6_2 {
 
         QueryEntry queryEntry = new QueryEntry();
         queryEntry.setTClass(MqttPayLoad.class);
+        queryEntry.setTerms(termsMap);
         queryEntry.setOrderField("updateDate");
 
         String str = JSON.toJSONString(queryEntry);
