@@ -61,7 +61,7 @@ mybatis:
 logging:
   config: classpath:config/logback/logback-spring.xml
 
-# elasticsearch
+# elasticsearch   用户名: elastic, 密码: dyzhsw@008381#
 elasticsearch:
   server:
     cluster-name: elasticsearch_xiamo
