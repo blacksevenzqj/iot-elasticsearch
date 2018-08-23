@@ -285,6 +285,7 @@ public class EsClient {
                 AggResultAll temp = new AggResultAll();
                 temp.setKeyName(bucket.getKeyAsString());
                 temp.setKeyCount(bucket.getDocCount());
+                temp.setParent(aggResult); // 设置父节点
                 aggResult.getAgg().add(temp);
                 Aggregations aggregations = bucket.getAggregations();
                 if(aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()){
@@ -298,12 +299,13 @@ public class EsClient {
         for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
             log.info("KeySubOne = " + entry.getKey() + ", Value = " + entry.getValue());
             AggResultAll sub = new AggResultAll();
+            sub.setParent(aggResult); // 设置父节点
             aggResult.getAgg().add(sub);
             if("max_by_updateDate".equalsIgnoreCase(entry.getKey())){
                 sub.setKeyName(entry.getKey());
                 sub.setKeyCount(Long.valueOf(map.size()));
                 Max byStateAggs = (Max)entry.getValue();
-                sub.setKeyMaxDate(DateUtils.getDateByDouble(byStateAggs.getValue()));
+                sub.setKeyMaxDate(DateUtils.getDateStrByUtcDouble(byStateAggs.getValue()));
             }else{
                 Terms byStateAggs = (Terms)entry.getValue();
                 List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
@@ -314,6 +316,7 @@ public class EsClient {
                     AggResultAll temp = new AggResultAll();
                     temp.setKeyName(bucket.getKeyAsString());
                     temp.setKeyCount(bucket.getDocCount());
+                    temp.setParent(sub); // 设置父节点
                     sub.getAgg().add(temp);
                     Aggregations aggregations = bucket.getAggregations();
                     if(aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()){

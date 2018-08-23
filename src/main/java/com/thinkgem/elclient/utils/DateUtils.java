@@ -32,17 +32,20 @@ public class DateUtils {
         return date;
     }
 
-    public static String getDateStrByDouble(double value) {
+    public static String getDateStrByUtcDouble(double value) {
         BigDecimal big = BigDecimal.valueOf(value);
         Date date = new Date(big.longValue());
-
-        String forMat = "yyyy-MM-dd HH:mm:ss";
-        DateTimeFormatter dfor = DateTimeFormatter.ofPattern(forMat);
-        ZoneId zoneId = ZoneId.systemDefault();
-
+        DateTimeFormatter dfor = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Instant instant = date.toInstant();
-        ZonedDateTime zdt = instant.atZone(zoneId);
-        return zdt.format(dfor);
+        ZoneId zoneId = ZoneId.of("+0");
+
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), zoneId);  // 设置UTC时区
+        String dateStr = localDateTime.format(dfor);
+        // 或
+//        ZonedDateTime zdt = instant.atZone(zoneId);
+//        String dateStr = zdt.format(dfor);
+
+        return dateStr;
     }
 
     public static Long getTimeDifference(Date startTime, Date endTime){

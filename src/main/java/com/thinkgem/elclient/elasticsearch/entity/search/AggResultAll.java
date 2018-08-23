@@ -19,8 +19,25 @@ public class AggResultAll {
 
     private Double keyMaxValue;
 
-    private Date keyMaxDate;
+    private String keyMaxDate;
+
+    private AggResultAll parent;
 
     List<AggResultAll> agg = new ArrayList<>();
+
+
+    @Override
+    public String toString() {
+        return "AggResultAll{" +
+                "groupName='" + groupName + '\'' +
+                ", groupCount=" + groupCount +
+                ", keyName='" + keyName + '\'' +
+                ", keyCount=" + keyCount +
+                ", keyMaxValue=" + keyMaxValue +
+                ", keyMaxDate='" + keyMaxDate + '\'' +
+//                ", parent=" + parent +
+                ", agg=" + agg +
+                '}';
+    }
 
 }

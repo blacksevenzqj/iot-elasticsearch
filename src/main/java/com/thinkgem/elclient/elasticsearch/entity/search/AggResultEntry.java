@@ -1,6 +1,5 @@
 package com.thinkgem.elclient.elasticsearch.entity.search;
 
-import java.util.Date;
 
 public class AggResultEntry {
 
@@ -15,7 +14,8 @@ public class AggResultEntry {
     public class AggResultSubEntry{
         private Long onLine;
         private Long offLine;
-        private Date maxUpDate;
+        private String onLineMaxUpDate;
+        private String offLineMaxUpDate;
 
         public Long getOnLine() {
             return onLine;
@@ -31,11 +31,18 @@ public class AggResultEntry {
             this.offLine = offLine;
         }
 
-        public Date getMaxUpDate() {
-            return maxUpDate;
+        public String getOnLineMaxUpDate() {
+            return onLineMaxUpDate;
         }
-        public void setMaxUpDate(Date maxUpDate) {
-            this.maxUpDate = maxUpDate;
+        public void setOnLineMaxUpDate(String onLineMaxUpDate) {
+            this.onLineMaxUpDate = onLineMaxUpDate;
+        }
+
+        public String getOffLineMaxUpDate() {
+            return offLineMaxUpDate;
+        }
+        public void setOffLineMaxUpDate(String offLineMaxUpDate) {
+            this.offLineMaxUpDate = offLineMaxUpDate;
         }
 
         @Override
@@ -43,10 +50,10 @@ public class AggResultEntry {
             return "AggResultSubEntry{" +
                     "onLine=" + onLine +
                     ", offLine=" + offLine +
-                    ", maxUpDate=" + maxUpDate +
+                    ", onLineMaxUpDate='" + onLineMaxUpDate + '\'' +
+                    ", offLineMaxUpDate='" + offLineMaxUpDate + '\'' +
                     '}';
         }
-
     }
 
     public String getClientId() {

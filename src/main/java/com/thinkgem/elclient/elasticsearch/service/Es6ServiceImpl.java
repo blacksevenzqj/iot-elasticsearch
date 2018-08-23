@@ -385,8 +385,12 @@ public class Es6ServiceImpl {
                 aggResultEntry.getAggResultSubEntry().setOnLine(agg.getKeyCount());
             }else if(EsConfig.AggQuery.CustomizeGroupName.OFF_LINE.equalsIgnoreCase(agg.getKeyName())){
                 aggResultEntry.getAggResultSubEntry().setOffLine(agg.getKeyCount());
-            }else if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(agg.getKeyName())){
-                aggResultEntry.getAggResultSubEntry().setMaxUpDate(agg.getKeyMaxDate());
+            }else if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(agg.getKeyName()) &&
+                    EsConfig.AggQuery.CustomizeGroupName.ON_LINE.equalsIgnoreCase(agg.getParent().getKeyName())){
+                aggResultEntry.getAggResultSubEntry().setOnLineMaxUpDate(agg.getKeyMaxDate());
+            }else if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(agg.getKeyName()) &&
+                    EsConfig.AggQuery.CustomizeGroupName.OFF_LINE.equalsIgnoreCase(agg.getParent().getKeyName())){
+                aggResultEntry.getAggResultSubEntry().setOffLineMaxUpDate(agg.getKeyMaxDate());
             }
             if(!agg.getAgg().isEmpty()){
                 getResultAggSubResult(aggResultEntry, agg.getAgg());
