@@ -64,9 +64,16 @@ logging:
 # elasticsearch
 elasticsearch:
   server:
-    cluster-name: elasticsearch_iot
+    cluster-name: elasticsearch_xiamo
     cluster-nodes: localhost
     port: 9200
+    connect-time-config: true
+    connect-num-config: true
+    connect-time-out: 1000
+    socket-time-out: 30000
+    connection-request-time-out: 500
+    max-connect-num: 100
+    max-connect-per-route: 100
 
 
     
