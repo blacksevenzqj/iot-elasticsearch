@@ -3,6 +3,10 @@ package com.thinkgem.elclient.elasticsearch.config;
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -104,6 +108,8 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
         }
         if(elasticsProperties.isConnectNumConfig()){
             setMutiConnectConfig();
+        }if(elasticsProperties.isCredentialsProviderConfig()){
+            setCredentialsProviderConfig();
         }
         restClient = builder.build();
         restHighLevelClient = new RestHighLevelClient(builder);
@@ -130,6 +136,16 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
             return httpClientBuilder;
         });
     }
-
+    /**
+     * 设置登录认证
+     */
+    private void setCredentialsProviderConfig(){
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticsProperties.getProviderUserName(), elasticsProperties.getProviderUserPassword()));
+        builder.setHttpClientConfigCallback(httpClientBuilder -> {
+            httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+            return httpClientBuilder;
+        });
+    }
 
 }

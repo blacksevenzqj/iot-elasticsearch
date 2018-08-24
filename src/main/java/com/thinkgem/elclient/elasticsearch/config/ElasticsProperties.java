@@ -27,6 +27,12 @@ public class ElasticsProperties {
     private int port;
 
 
+    private boolean credentialsProviderConfig;
+
+    private String providerUserName;
+
+    private String providerUserPassword;
+
     private boolean connectTimeConfig;
 
     private boolean connectNumConfig;
