@@ -42,6 +42,11 @@ public class TestEs6 {
 
     @Test
     public void getByField() throws Exception {
+        try {
+            int c = 1 / 0;
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
         RestResult<List<EquipmentData>> restResult = es6ServiceImpl.searchTermByFiled(EquipmentData.class,
                 "equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1",
                 new EsPageInfo(), null, null);
