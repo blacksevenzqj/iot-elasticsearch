@@ -11,8 +11,8 @@
 
     <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) [%L] [%thread] %cyan(%logger{80}): %msg%n" />
     <!-- 文件路径 -->
-    <property name="LOG_HOME" value="D:/logs/bill_client" />
-    <property name="LINUX_LOG_HOME" value="/home/bill_client/logs" />
+    <property name="LOG_HOME" value="D:/logs/iot-elasticsearch" />
+    <property name="LINUX_LOG_HOME" value="/home/iot-elasticsearch/logs" />
     <property name="LOG.MAX.SIZE" value="100MB" /> <!-- 日志文件大小,超过这个大小将被压缩 -->
 
     <!-- 开发环境 -->

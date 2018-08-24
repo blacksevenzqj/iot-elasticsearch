@@ -52,14 +52,18 @@ spring:
       max-idle: 10      # 连接池中的最大空闲连接
       min-idle: 5       # 连接池中的最小空闲连接
 
+
 # Mybatis 配置
 mybatis:
   config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
 
+
 # 日志级别
 logging:
-  config: classpath:config/logback/logback-spring.xml
+#  config: classpath:config/logback/logback-spring.xml
+  config: classpath:config/log4j2/log4j2-spring.xml
+
 
 # elasticsearch   用户名: elastic, 密码: dyzhsw@008381#
 elasticsearch:
