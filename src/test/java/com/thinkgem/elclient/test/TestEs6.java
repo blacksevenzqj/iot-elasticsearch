@@ -42,11 +42,6 @@ public class TestEs6 {
 
     @Test
     public void getByField() throws Exception {
-        try {
-            int c = 1 / 0;
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }
         RestResult<List<EquipmentData>> restResult = es6ServiceImpl.searchTermByFiled(EquipmentData.class,
                 "equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1",
                 new EsPageInfo(), null, null);
@@ -65,15 +60,15 @@ public class TestEs6 {
     public void save() throws Exception {
         String dateTimeStr = "2018-08-09 13:30:45";
         EquipmentData equipmentData = new EquipmentData();
-        equipmentData.setDbId("444");
-        equipmentData.setCreateBy("4");
-        equipmentData.setUpdateBy("4");
-        equipmentData.setCreateDate(dateTimeStr);
-        equipmentData.setUpdateDate(dateTimeStr);
+//        equipmentData.setDbId("555");
+        equipmentData.setCreateBy("5");
+        equipmentData.setUpdateBy("5");
+//        equipmentData.setCreateDate(dateTimeStr);
+//        equipmentData.setUpdateDate(dateTimeStr);
         equipmentData.setEquipmentId("8588ceaf5d70499e93fb1f824bc85ba1");
         equipmentData.setEquipmentCode("8588ceaf5d70499e93fb1f824bc85ba1");
-        equipmentData.setColumn1("kkk4");
-        equipmentData.setColumn1("mmm4");
+        equipmentData.setColumn1("kkk5");
+        equipmentData.setColumn1("mmm5");
         es6ServiceImpl.createIndexDoc(EquipmentData.class, equipmentData);
         Thread.currentThread().sleep(1000);
     }
