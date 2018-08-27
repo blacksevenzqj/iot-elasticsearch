@@ -135,12 +135,32 @@ public class Test {
 //        System.out.println(str);
 
 
+//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+////        df.setTimeZone(TimeZone.getTimeZone("GMT+0:00"));
+//        Date date1 = new Date(1533513600000L);
+//        Date date2 = new Date(1533484800000L);
+//        System.out.println(df.format(date1));
+//        System.out.println(df.format(date2));
+//
+//        BigDecimal utcBigDecimal = BigDecimal.valueOf(1533513600000L);
+//        BigDecimal d8BigDecimal = BigDecimal.valueOf(1533484800000L);
+//        BigDecimal result = utcBigDecimal.subtract(d8BigDecimal);
+//        result = result.divide(BigDecimal.valueOf(1000 * 60 * 60));
+//        System.out.println(result.toString() + "小时");
 
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        df.setTimeZone(TimeZone.getTimeZone("GMT+0:00"));
+        Date date1 = new Date(1533513600000L);
+        Date date2 = new Date(1533513600000L);
+        System.out.println(df.format(date1));
+        System.out.println(df.format(date2));
 
-
-
-
+        BigDecimal utcBigDecimal = BigDecimal.valueOf(1533542400000L);
+        BigDecimal d8BigDecimal = BigDecimal.valueOf(1533513600000L);
+        BigDecimal result = utcBigDecimal.subtract(d8BigDecimal);
+        result = result.divide(BigDecimal.valueOf(1000 * 60 * 60));
+        System.out.println(result.toString() + "小时");
 
     }
 

@@ -11,10 +11,10 @@ import java.util.Date;
 public class TimeZone {
 
     public static void main(String[] args) throws Exception{
-//        normalStr();
-        normalLong();
-//        j8_Str();
-        j8_Long();
+        normalStr();
+//        normalLong();
+        j8_Str();
+//        j8_Long();
     }
 
 
