@@ -301,7 +301,7 @@ public class EsClient {
             AggResultAll sub = new AggResultAll();
             sub.setParent(aggResult); // 设置父节点
             aggResult.getAgg().add(sub);
-            if("max_by_updateDate".equalsIgnoreCase(entry.getKey())){
+            if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(entry.getKey())){
                 sub.setKeyName(entry.getKey());
                 sub.setKeyCount(Long.valueOf(map.size()));
                 Max byStateAggs = (Max)entry.getValue();
