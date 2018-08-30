@@ -5,6 +5,7 @@ import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -12,28 +13,76 @@ import java.util.*;
 @Slf4j
 public class CustomParamUtils {
 
-    public static <T> QueryEntry<T>  getQueryEntry(String[] clientIds, Class<T> tClass) throws Exception{
-        Map<String, Object[]> termsMap = new HashMap<>();
-        Object[] obj = new Object[clientIds.length];
-        for(int i = 0; i< clientIds.length; i ++){
-            obj[i] = clientIds[i];
-        }
-
+    public static <T> QueryEntry<T>  getQueryEntry(Class<T> tClass, Map<String, Object> values, Map<String, Object[]> termsValues, Map<String, Object[]> rangeValues, Map<String, Object[]> shouldTermValues) throws Exception{
         QueryEntry queryEntry = new QueryEntry();
         queryEntry.setTClass(tClass);
+
+        Map<String, Object> termMap = null;
+        Map<String, Object[]> termsMap = null;
+        Map<String, Object[]> rangeMap = null;
+        Map<String, Object[]> shouldMap = null;
+        if(values != null && !values.isEmpty()){
+            termMap = new HashMap<>();
+        }else if(termsValues != null && !termsValues.isEmpty()){
+            termsMap = new HashMap<>();
+        }else if(rangeValues != null && !rangeValues.isEmpty()){
+            rangeMap = new HashMap<>();
+        }else if(shouldTermValues != null && !shouldTermValues.isEmpty()){
+            shouldMap = new HashMap<>();
+        }
+
         Field[] filds = tClass.getFields();
         for(int i = 0; i < filds.length; i++){
-            if(EsConfig.FIELD_QUERY_TYPE.SORT_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryDesc())){
-                String elFieldOrderName = filds[i].getAnnotation(EsFieldData.class).elName();
-                queryEntry.setOrderField(elFieldOrderName);
-            }else if(EsConfig.FIELD_QUERY_TYPE.QUERY_TERM_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryDesc())){
-                String elFieldName = filds[i].getAnnotation(EsFieldData.class).elName();
-                termsMap.put(elFieldName, obj);
-                queryEntry.setTerms(termsMap);
+            if(EsConfig.FIELD_QUERY_TYPE.SORT_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elSortType().getSortType())){
+                String elFieldOrderName = getElFieldName(filds[i]);
+                queryEntry.setSortField(elFieldOrderName);
+                queryEntry.setSortType(filds[i].getAnnotation(EsFieldData.class).elSortType().getSortDesc());
+            }else if(EsConfig.FIELD_QUERY_TYPE.QUERY_TERM_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryType().getQueryType()) &&
+                    values != null && !values.isEmpty()){
+                setMapValue(filds[i], values, termMap);
+            }else if(EsConfig.FIELD_QUERY_TYPE.QUERY_TERMS_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryType().getQueryType()) &&
+                    termsValues != null && !termsValues.isEmpty()){
+                setMapValue(filds[i], termsValues, termsMap);
+            }else if(EsConfig.FIELD_QUERY_TYPE.QUERY_RANGE_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryType().getQueryType()) &&
+                    rangeValues != null && !rangeValues.isEmpty()){
+                setMapValue(filds[i], rangeValues, rangeMap);
+            }else if(EsConfig.FIELD_QUERY_TYPE.QUERY_SHOULD_TERM_TYPE.equalsIgnoreCase(filds[i].getAnnotation(EsFieldData.class).elQueryType().getQueryType()) &&
+                    shouldTermValues != null && !shouldTermValues.isEmpty()){
+                setMapValue(filds[i], shouldTermValues, shouldMap);
             }
         }
+
+        if(values != null && !values.isEmpty()){
+            queryEntry.setTerm(termMap);
+        }else if(termsValues != null && !termsValues.isEmpty()){
+            queryEntry.setTerms(termsMap);
+        }else if(rangeValues != null && !rangeValues.isEmpty()){
+            queryEntry.setRange(rangeMap);
+        }else if(shouldTermValues != null && !shouldTermValues.isEmpty()){
+            queryEntry.setShouldTerm(shouldMap);
+        }
+
         return queryEntry;
     }
+
+    private static void setMapValue(Field field, Map paramMap, Map resultMap){
+        String queryFieldName =  field.getAnnotation(EsFieldData.class).elQueryType().getQueryFieldName();
+        Object value = paramMap.get(queryFieldName);
+        if(value != null){
+            String elFieldName = getElFieldName(field);
+            resultMap.put(elFieldName, value);
+        }
+    }
+
+    private static String getElFieldName(Field field){
+        String elFieldName = field.getAnnotation(EsFieldData.class).elName();
+        if (StringUtils.isBlank(elFieldName)) {
+            elFieldName = field.getName();
+        }
+        return elFieldName;
+    }
+
+// ===============================================================================================================================================================
 
     public static <T> AggQueryEntry getAggQueryEntry(Class<T> tClass) throws Exception{
         AggQueryEntry aggQueryEntry = new AggQueryEntry();
@@ -54,12 +103,15 @@ public class CustomParamUtils {
     }
 
     private static void createAggQueryEntryType(Field field, AggQueryEntry.AggQueryEntryType aggQueryEntryType){
-        String elFieldGroupName = field.getAnnotation(EsFieldData.class).elName();
+        String elFieldName = field.getAnnotation(EsFieldData.class).elName();
+        if (StringUtils.isBlank(elFieldName)) {
+            elFieldName = field.getName();
+        }
         String groupName = field.getAnnotation(EsFieldData.class).elAggType().getGroupName();
         String aggType = field.getAnnotation(EsFieldData.class).elAggType().getAggType();
         Integer aggOrder = field.getAnnotation(EsFieldData.class).elAggType().getAggOrder();
         aggQueryEntryType.setGroupName(groupName);
-        aggQueryEntryType.setFieldName(elFieldGroupName);
+        aggQueryEntryType.setFieldName(elFieldName);
         aggQueryEntryType.setAggType(aggType);
         aggQueryEntryType.setAggOrder(aggOrder);
     }

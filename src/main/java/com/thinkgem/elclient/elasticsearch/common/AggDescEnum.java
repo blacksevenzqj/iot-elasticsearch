@@ -2,9 +2,12 @@ package com.thinkgem.elclient.elasticsearch.common;
 
 public enum AggDescEnum {
 
-    NULL("null", "null", null, "默认为NULL"),  MAX_UPDATE(EsConfig.AggQuery.MAX, EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE, 1, "最大更新时间"),
+    NULL(null, null, null, "默认为NULL"),
+    MAX_UPDATE(EsConfig.AggQuery.MAX, EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE, 1, "最大更新时间"),
     GROUP_BY_ON_LINE(EsConfig.AggQuery.TERMS, EsConfig.AggQuery.CustomizeGroupName.GROUP_ON_LINE, 2, "在线分组"),
     GROUP_BY_CLIENT_ID(EsConfig.AggQuery.TERMS, EsConfig.AggQuery.CustomizeGroupName.GROUP_BY_CLIENT_ID, 3, "设备ID分组"),
+
+    MAX_FIELD(EsConfig.AggQuery.MAX, EsConfig.AggQuery.CustomizeGroupName.MAX_FIELD, 1, "最大值")
     ;
 
     private String aggType;

@@ -11,6 +11,8 @@ import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
+import com.thinkgem.elclient.entity.recharge.RechargeRecordVo;
+import com.thinkgem.elclient.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -187,7 +189,7 @@ public class Es6ServiceImpl {
         return RestResult.getSuccessResult(esClient.search(searchRequest, tClass));
     }
 
-    public  <T> RestResult<List<T>> pageQueryRequest(QueryEntry<T> queryEntry){
+    public  <T> RestResult<PageUtils<T>> pageQueryRequest(QueryEntry<T> queryEntry){
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(queryEntry.getTClass().getAnnotation(Es6Index.class).indexName());
         searchRequest.types(queryEntry.getTClass().getAnnotation(Es6Index.class).typeName());
@@ -268,10 +270,10 @@ public class Es6ServiceImpl {
         }
 
         // 排序
-        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
+        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getSortField(), queryEntry.getSortType()));
         searchSourceBuilder.query(boolBuilder);
         log.info(searchSourceBuilder.toString());
-        return RestResult.getSuccessResult(esClient.search(searchRequest.source(searchSourceBuilder), queryEntry.getTClass()));
+        return RestResult.getSuccessResult(esClient.search(searchRequest.source(searchSourceBuilder), queryEntry));
     }
 
 
@@ -311,13 +313,15 @@ public class Es6ServiceImpl {
         // 查询的等待时间
         searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        TermsQueryBuilder termsQueryBuilder = null;
+        BoolQueryBuilder boolBuilder = null;
         Map<String, Object[]> termsMap = queryEntry.getTerms();
         if(termsMap != null && !termsMap.isEmpty()){
+            boolBuilder = QueryBuilders.boolQuery();
             for (Map.Entry<String, Object[]> entry : termsMap.entrySet()) {
-                log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+                log.info("aggKey = " + entry.getKey() + ", aggValue = " + entry.getValue());
                 if(StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null && entry.getValue().length > 0) {
-                    termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
+                    TermsQueryBuilder termsQueryBuilder = QueryBuilders.termsQuery(entry.getKey(), entry.getValue());
+                    boolBuilder.filter(termsQueryBuilder);
                 }
             }
         }
@@ -350,8 +354,8 @@ public class Es6ServiceImpl {
         }
 
         // 排序
-        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getOrderField(), queryEntry.getOrderType()));
-        searchSourceBuilder.query(termsQueryBuilder);
+        searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getSortField(), queryEntry.getSortType()));
+        searchSourceBuilder.query(boolBuilder);
         searchSourceBuilder.aggregation(finalAggregationBuilder);
         searchSourceBuilder.size(0);
         log.info(searchSourceBuilder.toString());
@@ -375,6 +379,10 @@ public class Es6ServiceImpl {
                     }
                 }
             }
+        }else{
+            AggResultEntry aggResultEntry = new AggResultEntry();
+            aggResultEntry.setMaxFieldValue(temp.getKeyMaxValue());
+            aggResultEntryList.add(aggResultEntry);
         }
         return aggResultEntryList;
     }

@@ -72,8 +72,8 @@ logging:
 elasticsearch:
   server:
     cluster-name: elasticsearch_xiamo
-#    cluster-nodes: localhost
-    cluster-nodes: 116.62.80.163
+    cluster-nodes: localhost
+#    cluster-nodes: 116.62.80.163
     port: 9200
     credentials-provider-config: true
     provider-user-name: elastic

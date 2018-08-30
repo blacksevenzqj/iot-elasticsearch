@@ -1,5 +1,6 @@
 package com.thinkgem.elclient.controller;
 
+import com.thinkgem.elclient.elasticsearch.common.QueryDescEnum;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value="/mqttPayLoad")
@@ -30,7 +34,9 @@ public class MqttPayLoadController {
             return RestResult.getFailResult(500, "参数为NULL");
         }
         try{
-            QueryEntry queryEntry = CustomParamUtils.getQueryEntry(clientIds, MqttPayLoad.class);
+            Map<String, Object[]> ids = new HashMap();
+            ids.put(QueryDescEnum.QUERY_CLIENTS_ID.getQueryFieldName(), clientIds);
+            QueryEntry queryEntry = CustomParamUtils.getQueryEntry(MqttPayLoad.class, null, ids, null, null);
             AggQueryEntry aggQueryEntry = CustomParamUtils.getAggQueryEntry(MqttPayLoad.class);
             return mqttPayLoadService.aggQueryRequest(queryEntry, aggQueryEntry);
         }catch (Exception e){

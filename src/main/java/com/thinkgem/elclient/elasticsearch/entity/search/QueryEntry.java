@@ -27,10 +27,13 @@ public class QueryEntry<T> {
     @EsBoolQuery(boolTypeName = EsConfig.BoolQuery.SHOULD)
     private Map<String, Object[]> shouldTerm;
 
-    private String orderField;
+    private String sortField;
 
-    private String orderType;
+    private String sortType;
 
     private EsPageInfo esPageInfo;
 
+    public QueryEntry() {
+        this.esPageInfo = new EsPageInfo();
+    }
 }

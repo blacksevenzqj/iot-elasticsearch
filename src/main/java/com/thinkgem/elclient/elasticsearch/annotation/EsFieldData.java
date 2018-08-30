@@ -1,9 +1,7 @@
 package com.thinkgem.elclient.elasticsearch.annotation;
 
 
-import com.thinkgem.elclient.elasticsearch.common.AggDescEnum;
-import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
-import com.thinkgem.elclient.elasticsearch.common.EsConfig;
+import com.thinkgem.elclient.elasticsearch.common.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,9 +16,11 @@ public @interface EsFieldData {
 
     String elName() default "";
 
-    String elQueryDesc() default EsConfig.FIELD_QUERY_TYPE.DEFAULT_TYPE;
+    QueryDescEnum elQueryType() default QueryDescEnum.NULL;
 
     AggDescEnum elAggType() default AggDescEnum.NULL;
+
+    SortDescEnum elSortType() default SortDescEnum.NULL;
 
     AnalyzerConfigEnum analyzerType() default AnalyzerConfigEnum.NULL;
 

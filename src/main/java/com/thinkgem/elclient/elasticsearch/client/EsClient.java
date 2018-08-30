@@ -7,7 +7,9 @@ import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.config.ESClientDecorator;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
+import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.utils.DateUtils;
+import com.thinkgem.elclient.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
@@ -225,6 +227,20 @@ public class EsClient {
         }
         return list;
     }
+    public <T> PageUtils<T> search(SearchRequest request, QueryEntry<T> queryEntry) {
+        List<T> list = new ArrayList<>();
+        PageUtils<T> pageUtils = null;
+        try {
+            SearchResponse response = client.search(request);
+            if (response.getHits() != null) {
+                response.getHits().forEach(item -> list.add(JSON.parseObject(item.getSourceAsString(), queryEntry.getTClass())));
+            }
+            pageUtils = new PageUtils<>(list, response.getHits().getTotalHits(), queryEntry.getEsPageInfo().getPageSize(), queryEntry.getEsPageInfo().getPageNum());
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        return pageUtils;
+    }
     public <T> List<T> searchScroll(SearchRequest searchRequest, Class<T> tClass, Scroll scroll) {
         List<T> list = new ArrayList<>();
         try {
@@ -277,20 +293,25 @@ public class EsClient {
         for (Map.Entry<String, Aggregation> entry : map.entrySet()) {
             log.info("KeyOne = " + entry.getKey() + ", Value = " + entry.getValue());
             aggResult.setGroupName(entry.getKey());
-            Terms byStateAggs = (Terms)entry.getValue();
-            List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
-            aggResult.setGroupCount(aggList.size());
-            for (Terms.Bucket bucket : aggList) {
-                log.info("keyTwo:"+bucket.getKeyAsString()+",docCount:"+bucket.getDocCount());
-                AggResultAll temp = new AggResultAll();
-                temp.setKeyName(bucket.getKeyAsString());
-                temp.setKeyCount(bucket.getDocCount());
-                temp.setParent(aggResult); // 设置父节点
-                aggResult.getAgg().add(temp);
-                Aggregations aggregations = bucket.getAggregations();
-                if(aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()){
-                    getSubAggregations(aggregations.getAsMap(), temp);
+            if(entry.getValue() instanceof Terms) {
+                Terms byStateAggs = (Terms) entry.getValue();
+                List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
+                aggResult.setGroupCount(aggList.size());
+                for (Terms.Bucket bucket : aggList) {
+                    log.info("keyTwo:" + bucket.getKeyAsString() + ",docCount:" + bucket.getDocCount());
+                    AggResultAll temp = new AggResultAll();
+                    temp.setKeyName(bucket.getKeyAsString());
+                    temp.setKeyCount(bucket.getDocCount());
+                    temp.setParent(aggResult); // 设置父节点
+                    aggResult.getAgg().add(temp);
+                    Aggregations aggregations = bucket.getAggregations();
+                    if (aggregations.getAsMap() != null && !aggregations.getAsMap().isEmpty()) {
+                        getSubAggregations(aggregations.getAsMap(), temp);
+                    }
                 }
+            }else if(entry.getValue() instanceof Max){
+                Max byStateAggs = (Max)entry.getValue();
+                aggResult.setKeyMaxValue(byStateAggs.getValue());
             }
         }
     }
@@ -301,12 +322,17 @@ public class EsClient {
             AggResultAll sub = new AggResultAll();
             sub.setParent(aggResult); // 设置父节点
             aggResult.getAgg().add(sub);
-            if(EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(entry.getKey())){
+            if(entry.getValue() instanceof Max && EsConfig.AggQuery.CustomizeGroupName.MAX_UPDATE.equalsIgnoreCase(entry.getKey())){
                 sub.setKeyName(entry.getKey());
                 sub.setKeyCount(Long.valueOf(map.size()));
                 Max byStateAggs = (Max)entry.getValue();
                 sub.setKeyMaxDate(DateUtils.getDateStrByUtcDouble(byStateAggs.getValue()));
-            }else{
+            }else if(entry.getValue() instanceof Max && EsConfig.AggQuery.CustomizeGroupName.MAX_FIELD.equalsIgnoreCase(entry.getKey())){
+                sub.setKeyName(entry.getKey());
+                sub.setKeyCount(Long.valueOf(map.size()));
+                Max byStateAggs = (Max)entry.getValue();
+                sub.setKeyMaxValue(byStateAggs.getValue());
+            } else if(entry.getValue() instanceof Terms){
                 Terms byStateAggs = (Terms)entry.getValue();
                 List<? extends Terms.Bucket> aggList = byStateAggs.getBuckets();//获取bucket数组里所有数据
                 sub.setGroupName(entry.getKey());

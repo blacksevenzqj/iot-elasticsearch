@@ -21,7 +21,6 @@ public class MqttPayLoadServiceImpl implements MqttPayLoadService {
 
     @Override
     public RestResult<List<AggResultEntry>> aggQueryRequest(QueryEntry<MqttPayLoad> queryEntry, AggQueryEntry aggQueryEntry) {
-        queryEntry.setTClass(MqttPayLoad.class);
         return es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
     }
 

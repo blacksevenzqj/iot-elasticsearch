@@ -3,9 +3,12 @@ package com.thinkgem.elclient.service.impl;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
 import com.thinkgem.elclient.service.EquipmentDataService;
+import com.thinkgem.elclient.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +21,10 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
     Es6ServiceImpl es6ServiceImpl;
 
     @Override
-    public RestResult<List<EquipmentData>> pageQueryRequest(QueryEntry<EquipmentData> queryEntry) {
-        queryEntry.setTClass(EquipmentData.class);
+    public <T> RestResult<PageUtils<T>> pageQueryRequest(QueryEntry queryEntry) {
+        if(queryEntry.getTClass() == null){
+            queryEntry.setTClass(EquipmentData.class);
+        }
         return es6ServiceImpl.pageQueryRequest(queryEntry);
     }
 
@@ -33,4 +38,8 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
         return es6ServiceImpl.processDocBulk(EquipmentData.class, addList, null, null);
     }
 
+    @Override
+    public RestResult<List<AggResultEntry>> aggQueryRequest(QueryEntry<EquipmentData> queryEntry, AggQueryEntry aggQueryEntry) {
+        return es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+    }
 }

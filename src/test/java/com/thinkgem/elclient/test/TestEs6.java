@@ -2,11 +2,17 @@ package com.thinkgem.elclient.test;
 
 import com.alibaba.fastjson.JSON;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
+import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.group.EquipmentData;
+import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
+import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.service.Es6ServiceImpl;
+import com.thinkgem.elclient.elasticsearch.util.CustomParamUtils;
+import com.thinkgem.elclient.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,12 +69,13 @@ public class TestEs6 {
 //        equipmentData.setDbId("555");
         equipmentData.setCreateBy("5");
         equipmentData.setUpdateBy("5");
-//        equipmentData.setCreateDate(dateTimeStr);
-//        equipmentData.setUpdateDate(dateTimeStr);
+        equipmentData.setCreateDate(dateTimeStr);
+        equipmentData.setUpdateDate(dateTimeStr);
         equipmentData.setEquipmentId("8588ceaf5d70499e93fb1f824bc85ba1");
         equipmentData.setEquipmentCode("8588ceaf5d70499e93fb1f824bc85ba1");
         equipmentData.setColumn1("kkk5");
         equipmentData.setColumn1("mmm5");
+        equipmentData.setCount(100L);
         es6ServiceImpl.createIndexDoc(EquipmentData.class, equipmentData);
         Thread.currentThread().sleep(1000);
     }
@@ -130,18 +137,18 @@ public class TestEs6 {
     @Test
     public void pageQueryRequest() throws Exception {
         EsPageInfo esPageInfo = new EsPageInfo();
-        esPageInfo.setPageSize(10);
+        esPageInfo.setPageSize(2);
         esPageInfo.setPageNum(1);
 
-        Map<String, Object> termMap = new HashMap<>();
-        termMap.put("equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1");
+//        Map<String, Object> termMap = new HashMap<>();
+//        termMap.put("equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1");
 
-        Map<String, Object[]> rangeMap = new HashMap<>();
-        Object[] obj = new Object[2];
-//        obj[0] = "2018-08-06";
-        obj[0] = "2018-08-06 15:40:07";
-        obj[1] = "2018-08-08 13:30:45";
-        rangeMap.put("update_date", obj);
+//        Map<String, Object[]> rangeMap = new HashMap<>();
+//        Object[] obj = new Object[2];
+////        obj[0] = "2018-08-06";
+//        obj[0] = "2018-08-06 15:40:07";
+//        obj[1] = "2018-08-08 13:30:45";
+//        rangeMap.put("update_date", obj);
 
 //        Map<String, Object[]> shouldMap = new HashMap<>();
 //        Object[] objShould = new Object[2];
@@ -153,15 +160,15 @@ public class TestEs6 {
         queryEntry.setTClass(EquipmentData.class);
         queryEntry.setEsPageInfo(esPageInfo);
 
-        queryEntry.setTerm(termMap);
-        queryEntry.setRange(rangeMap);
+//        queryEntry.setTerm(termMap);
+//        queryEntry.setRange(rangeMap);
 //        queryEntry.setShouldTerm(shouldMap);
 
         String str = JSON.toJSONString(queryEntry);
         System.out.println(str);
 
-        RestResult<List<EquipmentData>> restResult = es6ServiceImpl.pageQueryRequest(queryEntry);
-        System.out.println(restResult.getData().size() + "___" + restResult.getData());
+        RestResult<PageUtils<EquipmentData>> restResult = es6ServiceImpl.pageQueryRequest(queryEntry);
+        System.out.println(restResult);
     }
 
 
@@ -173,5 +180,45 @@ public class TestEs6 {
         System.out.println(restResult.getData().size() + "___" + restResult.getData());
     }
 
+
+    @Test
+    public void aggQueryRequest() throws Exception {
+
+        QueryEntry queryEntry = new QueryEntry();
+        queryEntry.setTClass(EquipmentData.class);
+        queryEntry.setSortField("update_date");
+
+        String str = JSON.toJSONString(queryEntry);
+        System.out.println(str);
+
+        AggQueryEntry aggQueryEntry = new AggQueryEntry();
+
+        AggQueryEntry.AggQueryEntryType maxByUpdateDate = aggQueryEntry.new AggQueryEntryType();
+        maxByUpdateDate.setGroupName("max_by_field");
+        maxByUpdateDate.setFieldName("count");
+        maxByUpdateDate.setAggType(EsConfig.AggQuery.MAX);
+
+        aggQueryEntry.getAggQueryList().add(maxByUpdateDate);
+
+        RestResult<List<AggResultEntry>> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+        System.out.println("!!!!!!!!!!!!!!!!!" + restResult.getData());
+        List<AggResultEntry> list = restResult.getData();
+        for(AggResultEntry aggResultEntry : list){
+            System.out.println(aggResultEntry);
+        }
+    }
+
+    @Test
+    public void aggQueryRequest2() throws Exception {
+        QueryEntry<EquipmentData> queryEntry = new QueryEntry();
+        queryEntry.setTClass(EquipmentData.class);
+        AggQueryEntry aggQueryEntry = CustomParamUtils.getAggQueryEntry(EquipmentData.class);
+        RestResult<List<AggResultEntry>> restResult = es6ServiceImpl.aggQueryRequest(queryEntry, aggQueryEntry);
+        System.out.println("!!!!!!!!!!!!!!!!!" + restResult.getData());
+        List<AggResultEntry> list = restResult.getData();
+        for(AggResultEntry aggResultEntry : list){
+            System.out.println(aggResultEntry);
+        }
+    }
 
 }

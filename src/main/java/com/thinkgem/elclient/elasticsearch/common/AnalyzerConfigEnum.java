@@ -2,7 +2,7 @@ package com.thinkgem.elclient.elasticsearch.common;
 
 public enum AnalyzerConfigEnum {
 
-    NULL("null", "null", "默认为NULL"),
+    NULL(null, null, "默认为NULL"),
 
     IK("ik", "ik_max_word", "存储"), IK_SEARCH("ik_search", "ik_max_word", "搜索");
 

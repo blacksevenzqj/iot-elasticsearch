@@ -5,6 +5,7 @@ public class AggResultEntry {
 
     private String clientId;
     private Long clientCount;
+    private Double maxFieldValue;
     private AggResultSubEntry aggResultSubEntry;
 
     public AggResultEntry() {
@@ -77,13 +78,20 @@ public class AggResultEntry {
         this.aggResultSubEntry = aggResultSubEntry;
     }
 
+    public Double getMaxFieldValue() {
+        return maxFieldValue;
+    }
+    public void setMaxFieldValue(Double maxFieldValue) {
+        this.maxFieldValue = maxFieldValue;
+    }
+
     @Override
     public String toString() {
         return "AggResultEntry{" +
                 "clientId='" + clientId + '\'' +
                 ", clientCount=" + clientCount +
+                ", maxFieldValue=" + maxFieldValue +
                 ", aggResultSubEntry=" + aggResultSubEntry +
                 '}';
     }
-
 }

@@ -48,6 +48,9 @@ public interface EsConfig {
         String DEFAULT_TYPE = "default_type"; //默认
         String SORT_TYPE = "sort_type"; //排序
         String QUERY_TERM_TYPE = "query_term_type"; //查询：精确
+        String QUERY_TERMS_TYPE = "query_terms_type"; //查询：精确
+        String QUERY_RANGE_TYPE = "query_range_type"; //查询：范围
+        String QUERY_SHOULD_TERM_TYPE = "query_should_term_type"; //查询：OR
         String OTHER_TYPE = "other_type"; //其他
     }
 
@@ -62,6 +65,8 @@ public interface EsConfig {
             String MAX_UPDATE = "max_by_updateDate";
             String GROUP_ON_LINE = "group_by_online";
             String GROUP_BY_CLIENT_ID = "group_by_clientid";
+
+            String MAX_FIELD = "max_by_field";
         }
     }
 
