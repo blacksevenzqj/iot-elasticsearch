@@ -136,10 +136,6 @@ public class TestEs6 {
      */
     @Test
     public void pageQueryRequest() throws Exception {
-        EsPageInfo esPageInfo = new EsPageInfo();
-        esPageInfo.setPageSize(2);
-        esPageInfo.setPageNum(1);
-
 //        Map<String, Object> termMap = new HashMap<>();
 //        termMap.put("equipment_id", "8588ceaf5d70499e93fb1f824bc85ba1");
 
@@ -158,7 +154,8 @@ public class TestEs6 {
 
         QueryEntry queryEntry = new QueryEntry();
         queryEntry.setTClass(EquipmentData.class);
-        queryEntry.setEsPageInfo(esPageInfo);
+        queryEntry.getEsPageInfo().setPageSize(4);
+        queryEntry.getEsPageInfo().setPageNum(2);
 
 //        queryEntry.setTerm(termMap);
 //        queryEntry.setRange(rangeMap);
