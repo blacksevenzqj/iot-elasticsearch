@@ -33,7 +33,4 @@ public class QueryEntry<T> {
 
     private EsPageInfo esPageInfo;
 
-    public QueryEntry() {
-        this.esPageInfo = new EsPageInfo();
-    }
 }

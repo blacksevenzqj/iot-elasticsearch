@@ -86,7 +86,10 @@ elasticsearch:
     max-connect-num: 100
     max-connect-per-route: 100
   client:
-
+    search-source-time-out-seconds: 60
+    scroll-time-window-minutes: 1
+    mini-mum-should-match: 1
+    agg-search-source-size: 0
 
 
     

@@ -5,11 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>elastics配置</p>
- * @date: 2018年01月23日
  */
 @ConfigurationProperties(prefix = "elasticsearch.server")
 @Data
-public class ElasticsProperties {
+public class ElasticsServerProperties {
 
     /**
      * 名称

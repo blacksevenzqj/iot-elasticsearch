@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class ESClientDecorator implements InitializingBean, DisposableBean {
 
-    private ElasticsProperties elasticsProperties;
+    private ElasticsServerProperties elasticsServerProperties;
 
     private RestClientBuilder builder;
 
@@ -33,8 +33,8 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
 
     private static Map<String, Map> mapType = new HashMap<>();
 
-    public ESClientDecorator(ElasticsProperties elasticsProperties) {
-        this.elasticsProperties = elasticsProperties;
+    public ESClientDecorator(ElasticsServerProperties elasticsServerProperties) {
+        this.elasticsServerProperties = elasticsServerProperties;
     }
 
     @Override
@@ -100,15 +100,15 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
 
     private void init(){
         if(httpHost == null){
-            httpHost = new HttpHost(elasticsProperties.getClusterNodes(), elasticsProperties.getPort());
+            httpHost = new HttpHost(elasticsServerProperties.getClusterNodes(), elasticsServerProperties.getPort());
         }
         builder = RestClient.builder(httpHost);
-        if(elasticsProperties.isConnectTimeConfig()){
+        if(elasticsServerProperties.isConnectTimeConfig()){
             setConnectTimeOutConfig();
         }
-        if(elasticsProperties.isConnectNumConfig()){
+        if(elasticsServerProperties.isConnectNumConfig()){
             setMutiConnectConfig();
-        }if(elasticsProperties.isCredentialsProviderConfig()){
+        }if(elasticsServerProperties.isCredentialsProviderConfig()){
             setCredentialsProviderConfig();
         }
         restClient = builder.build();
@@ -120,9 +120,9 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
      */
     private void setConnectTimeOutConfig(){
         builder.setRequestConfigCallback(requestConfigBuilder -> {
-            requestConfigBuilder.setConnectTimeout(elasticsProperties.getConnectTimeOut());
-            requestConfigBuilder.setSocketTimeout(elasticsProperties.getSocketTimeOut());
-            requestConfigBuilder.setConnectionRequestTimeout(elasticsProperties.getConnectionRequestTimeOut());
+            requestConfigBuilder.setConnectTimeout(elasticsServerProperties.getConnectTimeOut());
+            requestConfigBuilder.setSocketTimeout(elasticsServerProperties.getSocketTimeOut());
+            requestConfigBuilder.setConnectionRequestTimeout(elasticsServerProperties.getConnectionRequestTimeOut());
             return requestConfigBuilder;
         });
     }
@@ -131,8 +131,8 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
      */
     private void setMutiConnectConfig(){
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
-            httpClientBuilder.setMaxConnTotal(elasticsProperties.getMaxConnectNum());
-            httpClientBuilder.setMaxConnPerRoute(elasticsProperties.getMaxConnectPerRoute());
+            httpClientBuilder.setMaxConnTotal(elasticsServerProperties.getMaxConnectNum());
+            httpClientBuilder.setMaxConnPerRoute(elasticsServerProperties.getMaxConnectPerRoute());
             return httpClientBuilder;
         });
     }
@@ -141,7 +141,7 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
      */
     private void setCredentialsProviderConfig(){
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticsProperties.getProviderUserName(), elasticsProperties.getProviderUserPassword()));
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticsServerProperties.getProviderUserName(), elasticsServerProperties.getProviderUserPassword()));
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
             httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
             return httpClientBuilder;

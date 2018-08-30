@@ -4,6 +4,7 @@ import com.thinkgem.elclient.elasticsearch.annotation.Es6Index;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
+import com.thinkgem.elclient.elasticsearch.config.ElasticsClientProperties;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
@@ -11,7 +12,6 @@ import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.elasticsearch.util.EsUtils;
-import com.thinkgem.elclient.entity.recharge.RechargeRecordVo;
 import com.thinkgem.elclient.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +43,9 @@ public class Es6ServiceImpl {
 
     @Autowired
     EsClient esClient;
+
+    @Autowired
+    ElasticsClientProperties elasticsClientProperties;
 
     /**
      * 新增索引
@@ -204,7 +207,7 @@ public class Es6ServiceImpl {
             searchSourceBuilder.size(queryEntry.getEsPageInfo().getPageSize());
         }
         // 查询的等待时间
-        searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        searchSourceBuilder.timeout(new TimeValue(elasticsClientProperties.getSearchSourceTimeOutSeconds(), TimeUnit.SECONDS));
 
         // bool，将查询合并
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
@@ -263,7 +266,7 @@ public class Es6ServiceImpl {
                     for(int i = 0; i < entry.getValue().length; i++){
                         TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery(entry.getKey(), entry.getValue()[i]);
                         boolBuilder.should(termQueryBuilder);
-                        boolBuilder.minimumShouldMatch(1);
+                        boolBuilder.minimumShouldMatch(elasticsClientProperties.getMiniMumShouldMatch());
                     }
                 }
             }
@@ -279,7 +282,7 @@ public class Es6ServiceImpl {
 
     // 传入：子类POJO的Class
     public <T> RestResult<List<T>> searchMatchScrollByField(Class<T> tClass, String fieldName, String field, int pageSize) {
-        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
+        final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(elasticsClientProperties.getScrollTimeWindowMinutes()));
         SearchRequest searchRequest = new SearchRequest(tClass.getAnnotation(Es6Index.class).indexName());
         searchRequest.scroll(scroll);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -311,7 +314,7 @@ public class Es6ServiceImpl {
             searchSourceBuilder.size(queryEntry.getEsPageInfo().getPageSize());
         }
         // 查询的等待时间
-        searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        searchSourceBuilder.timeout(new TimeValue(elasticsClientProperties.getSearchSourceTimeOutSeconds(), TimeUnit.SECONDS));
 
         BoolQueryBuilder boolBuilder = null;
         Map<String, Object[]> termsMap = queryEntry.getTerms();
@@ -357,7 +360,7 @@ public class Es6ServiceImpl {
         searchSourceBuilder.sort(EsUtils.createSortBuilder(queryEntry.getTClass(), queryEntry.getSortField(), queryEntry.getSortType()));
         searchSourceBuilder.query(boolBuilder);
         searchSourceBuilder.aggregation(finalAggregationBuilder);
-        searchSourceBuilder.size(0);
+        searchSourceBuilder.size(elasticsClientProperties.getAggSearchSourceSize());
         log.info(searchSourceBuilder.toString());
 
         AggResultAll temp = esClient.aggSearch(searchRequest.source(searchSourceBuilder));

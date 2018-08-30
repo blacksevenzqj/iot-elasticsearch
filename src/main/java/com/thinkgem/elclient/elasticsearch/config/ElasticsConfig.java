@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
-@EnableConfigurationProperties(ElasticsProperties.class)
+@EnableConfigurationProperties(ElasticsServerProperties.class)
 public class ElasticsConfig {
 
     @Autowired
-    private ElasticsProperties elasticsProperties;
+    private ElasticsServerProperties elasticsServerProperties;
 
     /**
      * 初始化
@@ -25,7 +25,7 @@ public class ElasticsConfig {
     @Bean
     @Scope("singleton")
     public ESClientDecorator getEsClientDecorator() {
-        return new ESClientDecorator(elasticsProperties);
+        return new ESClientDecorator(elasticsServerProperties);
     }
 
 }
