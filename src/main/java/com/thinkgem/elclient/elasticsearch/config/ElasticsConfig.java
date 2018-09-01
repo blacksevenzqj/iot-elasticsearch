@@ -16,16 +16,17 @@ public class ElasticsConfig {
 
     /**
      * 初始化
+     * 默认情况下bean的名称和方法名称相同，你也可以使用name属性来指定
      */
     @Bean
-    public RestHighLevelClient getRestHighLevelClient() {
+    public RestHighLevelClient restHighLevelClient() {
         return getEsClientDecorator().getRestHighLevelClient();
     }
 
-    @Bean
+    @Bean(name = "esClientDecorator")
     @Scope("singleton")
-    public ESClientDecorator getEsClientDecorator() {
-        return new ESClientDecorator(elasticsServerProperties);
+    public EsClientDecorator getEsClientDecorator() {
+        return new EsClientDecorator(elasticsServerProperties);
     }
 
 }

@@ -5,7 +5,7 @@ import com.thinkgem.elclient.elasticsearch.annotation.Es6Index;
 import com.thinkgem.elclient.elasticsearch.annotation.EsFieldData;
 import com.thinkgem.elclient.elasticsearch.common.AnalyzerConfigEnum;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
-import com.thinkgem.elclient.elasticsearch.config.ESClientDecorator;
+import com.thinkgem.elclient.elasticsearch.config.EsClientDecorator;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
 import com.thinkgem.elclient.elasticsearch.entity.search.QueryEntry;
 import com.thinkgem.elclient.utils.DateUtils;
@@ -40,6 +40,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -50,6 +51,7 @@ import java.util.*;
 public class EsClient {
 
     @Autowired
+    @Qualifier(value = "restHighLevelClient")
     private RestHighLevelClient client;
 
     /**
@@ -65,21 +67,21 @@ public class EsClient {
         Field[] fields = tClass.getFields();
         for(Field field : fields) {
             if (field.getAnnotation(EsFieldData.class) == null || StringUtils.isBlank(field.getAnnotation(EsFieldData.class).dataName())) {
-                mapField.put(field.getName(), ESClientDecorator.getMapType().get(EsConfig.El_STRING));
+                mapField.put(field.getName(), EsClientDecorator.getMapType().get(EsConfig.El_STRING));
             } else {
                 if(StringUtils.isNotBlank(field.getAnnotation(EsFieldData.class).analyzerType().getKey()) &&
                         field.getAnnotation(EsFieldData.class).analyzerType() != AnalyzerConfigEnum.NULL &&
                         StringUtils.isNotBlank(field.getAnnotation(EsFieldData.class).analyzerSearchType().getKey()) &&
                         field.getAnnotation(EsFieldData.class).analyzerSearchType() != AnalyzerConfigEnum.NULL &&
                         EsConfig.El_STRING.equalsIgnoreCase(field.getAnnotation(EsFieldData.class).dataName())){
-                    Map dataMap = ESClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).dataName());
-                    Map analyzerIkMap = ESClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).analyzerType().getKey());
-                    Map analyzerIkSearchMap = ESClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).analyzerSearchType().getKey());
+                    Map dataMap = EsClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).dataName());
+                    Map analyzerIkMap = EsClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).analyzerType().getKey());
+                    Map analyzerIkSearchMap = EsClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).analyzerSearchType().getKey());
                     dataMap.putAll(analyzerIkMap);
                     dataMap.putAll(analyzerIkSearchMap);
                     mapField.put(field.getName(), dataMap);
                 }else {
-                    mapField.put(field.getName(), ESClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).dataName()));
+                    mapField.put(field.getName(), EsClientDecorator.getMapType().get(field.getAnnotation(EsFieldData.class).dataName()));
                 }
             }
         }

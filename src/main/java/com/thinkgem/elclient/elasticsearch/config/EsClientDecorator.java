@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * <p>ES客户端工程类</p>
  */
-public class ESClientDecorator implements InitializingBean, DisposableBean {
+public class EsClientDecorator implements InitializingBean, DisposableBean {
 
     private ElasticsServerProperties elasticsServerProperties;
 
@@ -33,7 +33,7 @@ public class ESClientDecorator implements InitializingBean, DisposableBean {
 
     private static Map<String, Map> mapType = new HashMap<>();
 
-    public ESClientDecorator(ElasticsServerProperties elasticsServerProperties) {
+    public EsClientDecorator(ElasticsServerProperties elasticsServerProperties) {
         this.elasticsServerProperties = elasticsServerProperties;
     }
 
