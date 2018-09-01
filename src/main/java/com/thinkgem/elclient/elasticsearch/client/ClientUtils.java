@@ -13,7 +13,7 @@ public class ClientUtils {
         String id = docWriteResponse.getId();
         long version = docWriteResponse.getVersion();
         if (docWriteResponse.getResult() == DocWriteResponse.Result.CREATED) {
-            log.info("CREATED1" + ":" + index + ":" + type + ":" + id + ":" + version);
+            log.info("CREATED" + ":" + index + ":" + type + ":" + id + ":" + version);
         } else if (docWriteResponse.getResult() == DocWriteResponse.Result.UPDATED) {
             log.info("UPDATED" + ":" + index + ":" + type + ":" + id + ":" + version);
         }else if(docWriteResponse.getResult() == DocWriteResponse.Result.DELETED){
