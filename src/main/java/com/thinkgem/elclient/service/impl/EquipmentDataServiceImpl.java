@@ -21,7 +21,7 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
     Es6ServiceImpl es6ServiceImpl;
 
     @Override
-    public <T> RestResult<PageUtils<T>> pageQueryRequest(QueryEntry queryEntry) {
+    public RestResult<PageUtils<EquipmentData>> pageQueryRequest(QueryEntry<EquipmentData> queryEntry) {
         if(queryEntry.getTClass() == null){
             queryEntry.setTClass(EquipmentData.class);
         }
@@ -34,8 +34,8 @@ public class EquipmentDataServiceImpl implements EquipmentDataService {
     }
 
     @Override
-    public RestResult saveBulk(List<EsBaseEntity> addList) {
-        return es6ServiceImpl.processDocBulk(EquipmentData.class, addList, null, null);
+    public RestResult saveBulk(List<EquipmentData> addList) {
+        return es6ServiceImpl.processDocBulk(EquipmentData.class, addList, addList, null);
     }
 
     @Override

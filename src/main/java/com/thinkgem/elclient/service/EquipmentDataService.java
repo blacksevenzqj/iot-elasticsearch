@@ -12,11 +12,11 @@ import java.util.List;
 
 public interface EquipmentDataService {
 
-    <T> RestResult<PageUtils<T>> pageQueryRequest(QueryEntry queryEntry);
+   RestResult<PageUtils<EquipmentData>> pageQueryRequest(QueryEntry<EquipmentData> queryEntry);
 
     RestResult save(EquipmentData equipmentData);
 
-    RestResult saveBulk(List<EsBaseEntity> addList);
+    RestResult saveBulk(List<EquipmentData> addList);
 
     RestResult<List<AggResultEntry>> aggQueryRequest(QueryEntry<EquipmentData> queryEntry, AggQueryEntry aggQueryEntry);
 

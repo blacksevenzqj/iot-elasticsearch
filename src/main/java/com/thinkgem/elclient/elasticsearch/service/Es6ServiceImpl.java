@@ -3,10 +3,12 @@ package com.thinkgem.elclient.elasticsearch.service;
 import com.thinkgem.elclient.elasticsearch.annotation.Es6Index;
 import com.thinkgem.elclient.elasticsearch.client.EsClient;
 import com.thinkgem.elclient.elasticsearch.common.EsConfig;
+import com.thinkgem.elclient.elasticsearch.common.RestCodeEnum;
 import com.thinkgem.elclient.elasticsearch.common.RestResult;
 import com.thinkgem.elclient.elasticsearch.config.ElasticsClientProperties;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsBaseEntity;
 import com.thinkgem.elclient.elasticsearch.entity.base.EsPageInfo;
+import com.thinkgem.elclient.elasticsearch.entity.group.MqttPayLoad;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggQueryEntry;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultAll;
 import com.thinkgem.elclient.elasticsearch.entity.search.AggResultEntry;
@@ -39,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-public class Es6ServiceImpl {
+public class Es6ServiceImpl{
 
     @Autowired
     EsClient esClient;
@@ -51,9 +53,13 @@ public class Es6ServiceImpl {
      * 新增索引
      */
     // 传入：子类POJO的Class
-    public <T> RestResult createIndexMapping(Class<T> tClass) {
-        esClient.createIndexMapping(tClass);
-        return RestResult.getSuccessResult();
+    public <T> RestResult<T> createIndexMapping(Class<T> tClass) {
+        try{
+            esClient.createIndexMapping(tClass);
+            return RestResult.getSuccessResult();
+        }catch (Exception e){
+            return RestResult.getFailResult(RestCodeEnum.NOT_FOUND);
+        }
     }
 
 // ***************************************************************************************************
@@ -63,7 +69,7 @@ public class Es6ServiceImpl {
      */
     // 新增文档：
     // 传入：子类POJO的Class
-    public <T> RestResult createIndexDoc(Class<T> tClass, EsBaseEntity obj){
+    public <T> RestResult<T> createIndexDoc(Class<T> tClass, T obj){
         try {
             IndexRequest indexRequest = new IndexRequest(
                     tClass.getAnnotation(Es6Index.class).indexName(),
@@ -78,7 +84,7 @@ public class Es6ServiceImpl {
     }
     // 更新文档：
     // 传入：子类POJO的Class
-    public <T> RestResult upDateIndexDoc(Class<T> tClass, EsBaseEntity obj){
+    public <T> RestResult<T> upDateIndexDoc(Class<T> tClass, EsBaseEntity obj){
         try {
             UpdateRequest updateRequest = new UpdateRequest(
                     tClass.getAnnotation(Es6Index.class).indexName(),
@@ -94,7 +100,7 @@ public class Es6ServiceImpl {
     }
     // 删除文档：
     // 传入：子类POJO的Class
-    public <T> RestResult deleteIndexDoc(Class<T> tClass, String esId) {
+    public <T> RestResult<T> deleteIndexDoc(Class<T> tClass, String esId) {
         try {
             DeleteRequest request = new DeleteRequest(
                     tClass.getAnnotation(Es6Index.class).indexName(),
@@ -108,9 +114,52 @@ public class Es6ServiceImpl {
         return RestResult.getFailResult(500,"删除文档失败");
     }
 
-    // 批量操作：
-    // 传入：子类POJO的Class
-    public <T> RestResult processDocBulk(Class<T> tClass, List<EsBaseEntity> createList, List<EsBaseEntity> upDateList, List<String> deleteList){
+    /**
+     *  通配符：上界限定
+     */
+//    public <T> RestResult<T> processDocBulk(Class<T> tClass, List<? extends EsBaseEntity> createList, List<? extends EsBaseEntity> upDateList, List<String> deleteList){
+//        BulkRequest request = new BulkRequest();
+//        try {
+//            if(createList != null && !createList.isEmpty()) {
+//                for (EsBaseEntity obj : createList) {
+//                    IndexRequest indexRequest = new IndexRequest(
+//                            tClass.getAnnotation(Es6Index.class).indexName(),
+//                            tClass.getAnnotation(Es6Index.class).typeName()
+//                    ).source(EsUtils.Class2Array(obj));
+//                    request.add(indexRequest);
+//                }
+//            }
+//            if(upDateList != null && !upDateList.isEmpty()) {
+//                for (EsBaseEntity obj : upDateList) {
+//                    UpdateRequest updateRequest = new UpdateRequest(
+//                            tClass.getAnnotation(Es6Index.class).indexName(),
+//                            tClass.getAnnotation(Es6Index.class).typeName(),
+//                            obj.getEsId()
+//                    ).doc(EsUtils.Class2Array(obj));
+//                    request.add(updateRequest);
+//                }
+//            }
+//            if(deleteList != null && !deleteList.isEmpty()) {
+//                for (String esId : deleteList) {
+//                    DeleteRequest deleteRequest = new DeleteRequest(
+//                            tClass.getAnnotation(Es6Index.class).indexName(),
+//                            tClass.getAnnotation(Es6Index.class).typeName(),
+//                            esId);
+//                    request.add(deleteRequest);
+//                }
+//            }
+//            esClient.processDocBulk(request);
+//            return RestResult.getSuccessResult();
+//        }catch (Exception e){
+//            log.error(e.getMessage());
+//        }
+//        return RestResult.getFailResult(500,"新增文档失败");
+//    }
+
+    /**
+     *  边界限定符
+     */
+    public <T extends EsBaseEntity> RestResult<T> processDocBulk(Class<T> tClass, List<T> createList, List<T> upDateList, List<String> deleteList){
         BulkRequest request = new BulkRequest();
         try {
             if(createList != null && !createList.isEmpty()) {
@@ -294,7 +343,7 @@ public class Es6ServiceImpl {
 
 
 
-    public <T> RestResult aggQueryRequest(QueryEntry<T> queryEntry, AggQueryEntry aggQueryEntry){
+    public <T> RestResult<List<AggResultEntry>> aggQueryRequest(QueryEntry<T> queryEntry, AggQueryEntry aggQueryEntry){
 
         if(aggQueryEntry == null || aggQueryEntry.getAggQueryList().isEmpty()){
             return RestResult.getFailResult(500, "查询参数为NULL");

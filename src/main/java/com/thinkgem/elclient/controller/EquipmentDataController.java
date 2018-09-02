@@ -36,7 +36,7 @@ public class EquipmentDataController {
             Map<String, Object> ids = new HashMap();
             ids.put(QueryDescEnum.QUERY_EQUIPMENT_ID.getQueryFieldName(), equipmentId);
             ids.put(QueryDescEnum.QUERY_EQUIPMENT_CODE.getQueryFieldName(), equipmentId);
-            QueryEntry<EquipmentData> queryEntry = CustomParamUtils.getQueryEntry(EquipmentData.class, ids, null, null, null);
+            QueryEntry<EquipmentData> queryEntry = CustomParamUtils.<EquipmentData>getQueryEntry(EquipmentData.class, ids, null, null, null);
             queryEntry.setEsPageInfo(new EsPageInfo());
             return equipmentDataService.pageQueryRequest(queryEntry);
         }catch (Exception e){
@@ -60,7 +60,7 @@ public class EquipmentDataController {
     }
 
     @RequestMapping(value="/saveBulk", method= RequestMethod.POST)
-    public RestResult saveBulk(List<EsBaseEntity> list){
+    public RestResult saveBulk(List<EquipmentData> list){
         return equipmentDataService.saveBulk(list);
     }
 

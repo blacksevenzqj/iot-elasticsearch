@@ -14,7 +14,7 @@ import java.util.*;
 public class CustomParamUtils {
 
     public static <T> QueryEntry<T>  getQueryEntry(Class<T> tClass, Map<String, Object> values, Map<String, Object[]> termsValues, Map<String, Object[]> rangeValues, Map<String, Object[]> shouldTermValues) throws Exception{
-        QueryEntry queryEntry = new QueryEntry();
+        QueryEntry<T> queryEntry = new QueryEntry<T>();
         queryEntry.setTClass(tClass);
 
         Map<String, Object> termMap = null;
