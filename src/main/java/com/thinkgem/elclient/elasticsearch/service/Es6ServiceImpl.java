@@ -82,9 +82,11 @@ public class Es6ServiceImpl{
         }
         return RestResult.getFailResult(500,"新增文档失败");
     }
-    // 更新文档：
-    // 传入：子类POJO的Class
-    public <T> RestResult<T> upDateIndexDoc(Class<T> tClass, EsBaseEntity obj){
+    /**
+     *  更新文档
+     *  边界限定符
+     */
+    public <T extends EsBaseEntity> RestResult<T> upDateIndexDoc(Class<T> tClass, T obj){
         try {
             UpdateRequest updateRequest = new UpdateRequest(
                     tClass.getAnnotation(Es6Index.class).indexName(),
