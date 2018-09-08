@@ -50,7 +50,7 @@ public class MqttPayLoadController {
     }
 
     @RequestMapping(value="/saveBulk", method= RequestMethod.POST)
-    public RestResult saveBulk(List<EsBaseEntity> list){
+    public RestResult saveBulk(List<MqttPayLoad> list){
         return mqttPayLoadService.saveBulk(list);
     }
 

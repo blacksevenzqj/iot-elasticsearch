@@ -30,7 +30,7 @@ public class MqttPayLoadServiceImpl implements MqttPayLoadService {
     }
 
     @Override
-    public RestResult saveBulk(List<EsBaseEntity> addList) {
+    public RestResult saveBulk(List<MqttPayLoad> addList) {
         return es6ServiceImpl.processDocBulk(MqttPayLoad.class, addList, null, null);
     }
 

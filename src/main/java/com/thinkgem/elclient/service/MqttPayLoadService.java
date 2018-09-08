@@ -15,6 +15,6 @@ public interface MqttPayLoadService {
 
     RestResult save(MqttPayLoad mqttPayLoad);
 
-    RestResult saveBulk(List<EsBaseEntity> addList);
+    RestResult saveBulk(List<MqttPayLoad> addList);
 
 }
